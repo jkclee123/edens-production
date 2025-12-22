@@ -143,15 +143,15 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 ### Implementation for User Story 4
 
-- [ ] T053 [P] [US4] Implement notices list query (active only, newest-first, search) in `convex/notices.ts`
-- [ ] T054 [P] [US4] Implement create notice mutation (non-empty content) in `convex/notices.ts`
-- [ ] T055 [P] [US4] Implement update notice mutation (creator-only) in `convex/notices.ts`
-- [ ] T056 [P] [US4] Implement delete notice mutation (creator-only soft delete) in `convex/notices.ts`
-- [ ] T057 [US4] Build Notice page scaffold + data hooks in `app/(app)/notice/page.tsx`
-- [ ] T058 [P] [US4] Implement notice create form in `components/notice/NoticeComposer.tsx`
-- [ ] T059 [P] [US4] Implement notice search input (debounced) in `components/notice/NoticeSearch.tsx`
-- [ ] T060 [P] [US4] Implement notice list item UI with conditional edit/delete controls in `components/notice/NoticeCard.tsx`
-- [ ] T061 [US4] Implement edit-in-place flow (creator only) in `components/notice/NoticeCard.tsx`
+- [X] T053 [P] [US4] Implement notices list query (active only, newest-first, search) in `convex/notices.ts`
+- [X] T054 [P] [US4] Implement create notice mutation (non-empty content) in `convex/notices.ts`
+- [X] T055 [P] [US4] Implement update notice mutation (creator-only) in `convex/notices.ts`
+- [X] T056 [P] [US4] Implement delete notice mutation (creator-only soft delete) in `convex/notices.ts`
+- [X] T057 [US4] Build Notice page scaffold + data hooks in `app/(app)/notice/page.tsx`
+- [X] T058 [P] [US4] Implement notice create form in `components/notice/NoticeComposer.tsx`
+- [X] T059 [P] [US4] Implement notice search input (debounced) in `components/notice/NoticeSearch.tsx`
+- [X] T060 [P] [US4] Implement notice list item UI with conditional edit/delete controls in `components/notice/NoticeCard.tsx`
+- [X] T061 [US4] Implement edit-in-place flow (creator only) in `components/notice/NoticeCard.tsx`
 
 **Checkpoint**: US4 is fully functional and independently testable
 
