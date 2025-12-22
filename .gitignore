@@ -57,7 +57,6 @@ yarn-error.log*
 *.tsbuildinfo
 
 # Convex
-convex/_generated/
 .convex/
 
 # IDE
