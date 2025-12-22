@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -8,10 +8,12 @@ import { Loading } from "@/components/Loading";
 import { ErrorState } from "@/components/ErrorState";
 import { InventoryToolbar } from "@/components/inventory/InventoryToolbar";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState<"all" | "none" | Id<"locations">>("all");
+  const userEmail = useUserEmail();
 
   // Debounced search value for API calls
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -29,10 +31,11 @@ export default function InventoryPage() {
   // Fetch locations for the toolbar and table
   const locations = useQuery(api.locations.list);
 
-  // Fetch inventory items with filters
+  // Fetch inventory items with filters (includes per-user location ordering)
   const inventory = useQuery(api.inventory.list, {
     search: debouncedSearch || undefined,
     locationId: locationFilter,
+    userEmail,
   });
 
   // Loading state

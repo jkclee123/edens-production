@@ -34,14 +34,20 @@ async function getUserForMutation(ctx: MutationCtx, userEmail?: string) {
 /**
  * List active inventory items with optional search and location filter
  * Returns items grouped by location, with "No location" items first
+ * 
+ * Location ordering follows per-user preferences (FR-010, FR-011, FR-012):
+ * 1. "No location" group always appears FIRST
+ * 2. Locations with user-set order values are sorted by order (ascending)
+ * 3. Locations without order values appear after ordered locations, sorted by name
  */
 export const list = query({
   args: {
     search: v.optional(v.string()),
     locationId: v.optional(v.union(v.id("locations"), v.literal("none"), v.literal("all"))),
+    userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireAuthorizedUser(ctx);
+    const authResult = await requireAuthorizedUser(ctx);
 
     let items: Doc<"inventory">[];
 
@@ -79,18 +85,49 @@ export const list = query({
       .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
 
-    const locationMap = new Map(locations.map((loc) => [loc._id, loc]));
+    // Get user's location order preferences
+    let userId: Id<"users"> | null = null;
+    if (authResult?.user) {
+      userId = authResult.user._id;
+    } else if (args.userEmail) {
+      const normalized = normalizeEmail(args.userEmail);
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_normalizedEmail", (q) => q.eq("normalizedEmail", normalized))
+        .first();
+      if (user) {
+        userId = user._id;
+      }
+    }
+
+    // Get location orders for this user
+    const locationOrders = userId
+      ? await ctx.db
+          .query("locationOrders")
+          .withIndex("by_userId", (q) => q.eq("userId", userId))
+          .collect()
+      : [];
+
+    // Build order map: locationId -> order value
+    const orderMap = new Map<string, number>();
+    for (const lo of locationOrders) {
+      orderMap.set(lo.locationId, lo.order);
+    }
 
     // Group items by location
-    const grouped: Map<string, { location: Doc<"locations"> | null; items: Doc<"inventory">[] }> =
+    const grouped: Map<string, { location: Doc<"locations"> | null; items: Doc<"inventory">[]; order: number | null }> =
       new Map();
 
-    // Initialize "No location" group (will be first)
-    grouped.set("none", { location: null, items: [] });
+    // Initialize "No location" group (will always be first)
+    grouped.set("none", { location: null, items: [], order: null });
 
     // Initialize groups for all locations
     for (const loc of locations) {
-      grouped.set(loc._id, { location: loc, items: [] });
+      grouped.set(loc._id, { 
+        location: loc, 
+        items: [],
+        order: orderMap.get(loc._id) ?? null
+      });
     }
 
     // Assign items to groups
@@ -116,20 +153,42 @@ export const list = query({
       });
     }
 
-    // Convert to array: "No location" first, then locations sorted by name
-    const result: { location: Doc<"locations"> | null; items: Doc<"inventory">[] }[] = [];
+    // Convert to array and sort per user preferences
+    const result: { location: Doc<"locations"> | null; items: Doc<"inventory">[]; order: number | null }[] = [];
 
-    // Add "No location" group first (even if empty, for UI consistency)
+    // Add "No location" group first (FR-010: always first)
     const noLocationGroup = grouped.get("none")!;
     result.push(noLocationGroup);
 
-    // Add location groups sorted by name
+    // Sort location groups by user preferences (FR-011, FR-012)
     const locationGroups = [...grouped.entries()]
       .filter(([key]) => key !== "none")
       .map(([, group]) => group)
       .sort((a, b) => {
-        if (!a.location || !b.location) return 0;
-        return a.location.name.toLowerCase().localeCompare(b.location.name.toLowerCase());
+        const orderA = a.order;
+        const orderB = b.order;
+
+        // Both have order values: sort by order ascending
+        if (orderA !== null && orderB !== null) {
+          if (orderA !== orderB) {
+            return orderA - orderB;
+          }
+          // Tie-breaker: location name
+          return (a.location?.name ?? "").toLowerCase().localeCompare((b.location?.name ?? "").toLowerCase());
+        }
+
+        // Only A has order: A comes first
+        if (orderA !== null && orderB === null) {
+          return -1;
+        }
+
+        // Only B has order: B comes first
+        if (orderA === null && orderB !== null) {
+          return 1;
+        }
+
+        // Neither has order: sort by name
+        return (a.location?.name ?? "").toLowerCase().localeCompare((b.location?.name ?? "").toLowerCase());
       });
 
     result.push(...locationGroups);

@@ -150,7 +150,7 @@ export function AppShell({ children }: AppShellProps) {
         {/* Sidebar */}
         <aside
           className={`
-            shrink-0 transition-all duration-300
+            shrink-0 border-border bg-surface transition-all duration-300
             ${isNavCollapsed ? "w-16" : "w-56"}
           `}
         >

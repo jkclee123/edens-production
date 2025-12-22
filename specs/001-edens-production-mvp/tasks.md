@@ -122,14 +122,14 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 ### Implementation for User Story 3
 
-- [ ] T045 [P] [US3] Implement location order settings query (all locations + order|null) in `convex/locationOrders.ts`
-- [ ] T046 [P] [US3] Implement upsert location order mutation in `convex/locationOrders.ts`
-- [ ] T047 [US3] Implement Location Order Settings page scaffold + data hooks in `app/(app)/settings/location-order/page.tsx`
-- [ ] T048 [P] [US3] Implement editable order cell with immediate persistence in `components/locationOrder/EditableOrderCell.tsx`
-- [ ] T049 [US3] Implement stable ordering rules + tie-breakers in `lib/locationOrdering.ts`
-- [ ] T050 [US3] Update inventory grouping/order logic to apply per-user orders (FR-011, FR-012) in `convex/inventory.ts`
-- [ ] T051 [US3] Add “Location Order Settings” navigation from Inventory in `components/inventory/InventoryToolbar.tsx`
-- [ ] T052 [US3] Ensure null-location group always first (FR-010) in `convex/inventory.ts`
+- [X] T045 [P] [US3] Implement location order settings query (all locations + order|null) in `convex/locationOrders.ts`
+- [X] T046 [P] [US3] Implement upsert location order mutation in `convex/locationOrders.ts`
+- [X] T047 [US3] Implement Location Order Settings page scaffold + data hooks in `app/(app)/settings/location-order/page.tsx`
+- [X] T048 [P] [US3] Implement editable order cell with immediate persistence in `components/locationOrder/EditableOrderCell.tsx`
+- [X] T049 [US3] Implement stable ordering rules + tie-breakers in `lib/locationOrdering.ts`
+- [X] T050 [US3] Update inventory grouping/order logic to apply per-user orders (FR-011, FR-012) in `convex/inventory.ts`
+- [X] T051 [US3] Add "Location Order Settings" navigation from Inventory in `components/inventory/InventoryToolbar.tsx`
+- [X] T052 [US3] Ensure null-location group always first (FR-010) in `convex/inventory.ts`
 
 **Checkpoint**: US3 is fully functional and independently testable
 
