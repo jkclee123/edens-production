@@ -1,0 +1,29 @@
+# edens-production Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-12-22
+
+## Active Technologies
+
+- TypeScript (Next.js) + Bun `1.x` + Next.js (App Router), React, Convex, Auth.js/NextAuth (Google), Tailwind CSS (or equivalent), Zod (validation) (001-edens-production-mvp)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+TypeScript (Next.js) + Bun `1.x`: Follow standard conventions
+
+## Recent Changes
+
+- 001-edens-production-mvp: Added TypeScript (Next.js) + Bun `1.x` + Next.js (App Router), React, Convex, Auth.js/NextAuth (Google), Tailwind CSS (or equivalent), Zod (validation)
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

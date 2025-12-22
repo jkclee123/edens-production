@@ -1,0 +1,119 @@
+"""
+Eden’s Production MVP API Contract
+
+This schema is a contract artifact for planning/testing.
+Implementation will be via Convex queries/mutations/actions, but the shapes and rules
+below are the canonical interface expectations derived from the feature spec.
+"""
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  """
+  Returns true if the provided email is currently allowlisted (CrewEmail).
+  Intended for use during sign-in gating.
+  """
+  isCrewEmailAllowed(email: String!): Boolean!
+
+  """
+  Lists all locations and the current user's order value for each location.
+  Locations without a LocationOrder record return order=null.
+  """
+  locationOrderSettings: [LocationOrderRow!]!
+
+  """
+  Lists inventory grouped by location, applying user-specific location ordering.
+  - Items with no location are returned separately and must appear first in the UI.
+  - Within a location group, ordering is stable (implementation-defined, but deterministic).
+  """
+  inventory(filter: InventoryFilterInput): InventoryResult!
+
+  """
+  Lists notices (active only) newest-first, optionally filtered by free-text search.
+  """
+  notices(filter: NoticeFilterInput): [Notice!]!
+}
+
+type Mutation {
+  # Inventory
+  createInventory: InventoryItem!
+  updateInventoryName(id: ID!, name: String!): InventoryItem!
+  updateInventoryQty(id: ID!, qty: Int!): InventoryItem!
+  updateInventoryLocation(id: ID!, locationId: ID): InventoryItem!
+  deleteInventory(id: ID!): Boolean!
+
+  # Location order
+  upsertLocationOrder(locationId: ID!, order: Int!): LocationOrderRow!
+
+  # Notices
+  createNotice(content: String!): Notice!
+  updateNotice(id: ID!, content: String!): Notice!
+  deleteNotice(id: ID!): Boolean!
+}
+
+"""
+All authenticated operations require:
+- a valid user identity
+- user's email is allowlisted in CrewEmail
+"""
+directive @requiresAuthorizedUser on FIELD_DEFINITION
+
+input InventoryFilterInput {
+  search: String
+  locationId: ID
+}
+
+type InventoryResult {
+  noLocationItems: [InventoryItem!]!
+  locationGroups: [InventoryGroup!]!
+}
+
+type InventoryGroup {
+  location: Location!
+  items: [InventoryItem!]!
+  order: Int
+}
+
+type InventoryItem {
+  id: ID!
+  name: String!
+  qty: Int!
+  location: Location
+  updatedAt: Float!
+  updatedBy: UserSummary!
+}
+
+type LocationOrderRow {
+  location: Location!
+  order: Int
+}
+
+type Location {
+  id: ID!
+  name: String!
+}
+
+input NoticeFilterInput {
+  search: String
+}
+
+type Notice {
+  id: ID!
+  content: String!
+  createdAt: Float!
+  updatedAt: Float!
+  isActive: Boolean!
+  createdBy: UserSummary!
+  canEdit: Boolean!
+}
+
+type UserSummary {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+
