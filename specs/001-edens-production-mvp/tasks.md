@@ -97,18 +97,18 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 ### Implementation for User Story 2
 
-- [ ] T033 [P] [US2] Implement locations listing query for dropdowns in `convex/locations.ts`
-- [ ] T034 [P] [US2] Implement inventory query (grouped by location; stable ordering; search/filter) in `convex/inventory.ts`
-- [ ] T035 [P] [US2] Implement inventory create mutation (name="", qty=1, location=null, isActive=true) in `convex/inventory.ts`
-- [ ] T036 [P] [US2] Implement inventory update mutations (name/qty/location) in `convex/inventory.ts`
-- [ ] T037 [P] [US2] Implement inventory soft-delete mutation in `convex/inventory.ts`
-- [ ] T038 [US2] Build Inventory page scaffold + data hooks in `app/(app)/inventory/page.tsx`
-- [ ] T039 [P] [US2] Implement Inventory toolbar (search + location filter + add button) in `components/inventory/InventoryToolbar.tsx`
-- [ ] T040 [P] [US2] Implement grouped Inventory table UI in `components/inventory/InventoryTable.tsx`
-- [ ] T041 [P] [US2] Implement editable name cell with immediate persistence in `components/inventory/EditableNameCell.tsx`
-- [ ] T042 [P] [US2] Implement qty stepper with integer validation in `components/inventory/QtyStepper.tsx`
-- [ ] T043 [P] [US2] Implement location dropdown cell in `components/inventory/LocationSelectCell.tsx`
-- [ ] T044 [US2] Implement delete confirmation UX and mutation call in `components/inventory/DeleteInventoryButton.tsx`
+- [X] T033 [P] [US2] Implement locations listing query for dropdowns in `convex/locations.ts`
+- [X] T034 [P] [US2] Implement inventory query (grouped by location; stable ordering; search/filter) in `convex/inventory.ts`
+- [X] T035 [P] [US2] Implement inventory create mutation (name="", qty=1, location=null, isActive=true) in `convex/inventory.ts`
+- [X] T036 [P] [US2] Implement inventory update mutations (name/qty/location) in `convex/inventory.ts`
+- [X] T037 [P] [US2] Implement inventory soft-delete mutation in `convex/inventory.ts`
+- [X] T038 [US2] Build Inventory page scaffold + data hooks in `app/(app)/inventory/page.tsx`
+- [X] T039 [P] [US2] Implement Inventory toolbar (search + location filter + add button) in `components/inventory/InventoryToolbar.tsx`
+- [X] T040 [P] [US2] Implement grouped Inventory table UI in `components/inventory/InventoryTable.tsx`
+- [X] T041 [P] [US2] Implement editable name cell with immediate persistence in `components/inventory/EditableNameCell.tsx`
+- [X] T042 [P] [US2] Implement qty stepper with integer validation in `components/inventory/QtyStepper.tsx`
+- [X] T043 [P] [US2] Implement location dropdown cell in `components/inventory/LocationSelectCell.tsx`
+- [X] T044 [US2] Implement delete confirmation UX and mutation call in `components/inventory/DeleteInventoryButton.tsx`
 
 **Checkpoint**: US2 is fully functional and independently testable
 
