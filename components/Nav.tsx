@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"
@@ -38,6 +39,7 @@ const navItems: NavItem[] = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"
@@ -58,32 +60,38 @@ export function Nav({ isCollapsed }: NavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-1 p-2">
-      {navItems.map((item) => {
-        const isActive = pathname.startsWith(item.href);
+    <nav aria-label="Main navigation" className="flex flex-col gap-1 p-2">
+      <ul role="list" className="flex flex-col gap-1">
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
 
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`
-              flex items-center gap-3 rounded-lg px-3 py-2.5
-              transition-colors duration-200
-              ${
-                isActive
-                  ? "bg-accent/10 text-accent"
-                  : "text-text-muted hover:bg-surface-elevated hover:text-foreground"
-              }
-            `}
-            title={isCollapsed ? item.label : undefined}
-          >
-            {item.icon}
-            {!isCollapsed && (
-              <span className="text-sm font-medium">{item.label}</span>
-            )}
-          </Link>
-        );
-      })}
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`
+                  flex items-center gap-3 rounded-lg px-3 py-2.5
+                  transition-colors duration-200
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface
+                  ${
+                    isActive
+                      ? "bg-accent/10 text-accent"
+                      : "text-text-muted hover:bg-surface-elevated hover:text-foreground"
+                  }
+                `}
+                title={isCollapsed ? item.label : undefined}
+                aria-label={isCollapsed ? item.label : undefined}
+              >
+                {item.icon}
+                {!isCollapsed && (
+                  <span className="text-sm font-medium">{item.label}</span>
+                )}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

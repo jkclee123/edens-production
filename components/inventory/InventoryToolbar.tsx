@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
+import { useToast, getErrorMessage } from "@/components/ui/Toast";
 
 interface InventoryToolbarProps {
   search: string;
@@ -17,6 +17,8 @@ interface InventoryToolbarProps {
   locations: Doc<"locations">[];
 }
 
+const DEBOUNCE_MS = 300;
+
 export function InventoryToolbar({
   search,
   onSearchChange,
@@ -25,8 +27,26 @@ export function InventoryToolbar({
   locations,
 }: InventoryToolbarProps) {
   const [isAdding, setIsAdding] = useState(false);
+  const [localSearch, setLocalSearch] = useState(search);
   const createItem = useMutation(api.inventory.create);
   const userEmail = useUserEmail();
+  const { error: showError } = useToast();
+
+  // Sync local search with external search prop
+  useEffect(() => {
+    setLocalSearch(search);
+  }, [search]);
+
+  // Debounced search update
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== search) {
+        onSearchChange(localSearch);
+      }
+    }, DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [localSearch, search, onSearchChange]);
 
   const handleAddItem = async () => {
     setIsAdding(true);
@@ -34,11 +54,16 @@ export function InventoryToolbar({
       // Create with defaults: name="", qty=1, location=null
       await createItem({ userEmail });
     } catch (error) {
-      console.error("Failed to create item:", error);
+      showError(getErrorMessage(error));
     } finally {
       setIsAdding(false);
     }
   };
+
+  const handleClearSearch = useCallback(() => {
+    setLocalSearch("");
+    onSearchChange("");
+  }, [onSearchChange]);
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -59,19 +84,20 @@ export function InventoryToolbar({
         </svg>
         <input
           type="text"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
           placeholder="Search items..."
-          className="w-full pl-9 pr-3 py-2 text-sm
+          className="w-full pl-9 pr-8 py-2 text-sm
                      bg-surface border border-border rounded-lg
                      text-foreground placeholder:text-text-muted
                      focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
                      transition-colors duration-200"
           aria-label="Search inventory"
         />
-        {search && (
+        {localSearch && (
           <button
-            onClick={() => onSearchChange("")}
+            type="button"
+            onClick={handleClearSearch}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded
                        text-text-muted hover:text-foreground
                        focus:outline-none focus:ring-1 focus:ring-accent"

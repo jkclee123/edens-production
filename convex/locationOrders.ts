@@ -1,35 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { requireAuthorizedUser, normalizeEmail } from "./_auth";
+import { requireAuthorizedUser, requireUserForMutation, normalizeEmail } from "./_auth";
 import { Doc, Id } from "./_generated/dataModel";
-import { MutationCtx } from "./_generated/server";
-
-/**
- * Get user for mutation tracking
- * Looks up user by email since we may not have Convex Auth identity
- */
-async function getUserForMutation(ctx: MutationCtx, userEmail?: string) {
-  // First try to get user from Convex Auth
-  const authResult = await requireAuthorizedUser(ctx);
-  if (authResult?.user) {
-    return authResult.user;
-  }
-
-  // Fallback: look up user by email (passed from client session)
-  if (userEmail) {
-    const normalized = normalizeEmail(userEmail);
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_normalizedEmail", (q) => q.eq("normalizedEmail", normalized))
-      .first();
-    
-    if (user) {
-      return user;
-    }
-  }
-
-  return null;
-}
 
 /**
  * List all locations with the current user's order settings
@@ -110,11 +82,7 @@ export const upsert = mutation({
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await getUserForMutation(ctx, args.userEmail);
-
-    if (!user) {
-      throw new Error("User profile not found. Please sign in again.");
-    }
+    const user = await requireUserForMutation(ctx, args.userEmail);
 
     // Validate order is an integer
     if (!Number.isInteger(args.order)) {
@@ -166,11 +134,7 @@ export const remove = mutation({
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await getUserForMutation(ctx, args.userEmail);
-
-    if (!user) {
-      throw new Error("User profile not found. Please sign in again.");
-    }
+    const user = await requireUserForMutation(ctx, args.userEmail);
 
     // Find the existing order
     const existing = await ctx.db

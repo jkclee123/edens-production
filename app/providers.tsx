@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ToastProvider } from "@/components/ui/Toast";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -25,7 +26,9 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <ConvexProvider client={convex}>{children}</ConvexProvider>
+      <ConvexProvider client={convex}>
+        <ToastProvider>{children}</ToastProvider>
+      </ConvexProvider>
     </SessionProvider>
   );
 }

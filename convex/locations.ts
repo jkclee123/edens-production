@@ -1,6 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { requireAuthorizedUser } from "./_auth";
+import { requireAuthorizedUser, requireUserForMutation } from "./_auth";
 
 /**
  * List all active locations
@@ -34,11 +34,15 @@ export const getById = query({
 
 /**
  * Create a new location
+ * Protected - only authorized users can create locations
  */
 export const create = mutation({
-  args: { name: v.string() },
+  args: { 
+    name: v.string(),
+    userEmail: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    await requireAuthorizedUser(ctx);
+    await requireUserForMutation(ctx, args.userEmail);
 
     const name = args.name.trim();
     if (!name) {
@@ -55,14 +59,16 @@ export const create = mutation({
 
 /**
  * Update a location
+ * Protected - only authorized users can update locations
  */
 export const update = mutation({
   args: {
     id: v.id("locations"),
     name: v.string(),
+    userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireAuthorizedUser(ctx);
+    await requireUserForMutation(ctx, args.userEmail);
 
     const name = args.name.trim();
     if (!name) {
@@ -75,11 +81,15 @@ export const update = mutation({
 
 /**
  * Soft delete a location
+ * Protected - only authorized users can delete locations
  */
 export const remove = mutation({
-  args: { id: v.id("locations") },
+  args: { 
+    id: v.id("locations"),
+    userEmail: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    await requireAuthorizedUser(ctx);
+    await requireUserForMutation(ctx, args.userEmail);
     await ctx.db.patch(args.id, { isActive: false });
   },
 });

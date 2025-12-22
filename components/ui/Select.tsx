@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type SelectHTMLAttributes } from "react";
+import { forwardRef, useId, type SelectHTMLAttributes } from "react";
 
 interface SelectOption {
   value: string;
@@ -12,14 +12,18 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   error?: string;
   label?: string;
   placeholder?: string;
+  description?: string;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
-    { options, error, label, placeholder, className = "", id, ...props },
+    { options, error, label, placeholder, description, className = "", id, ...props },
     ref
   ) => {
-    const selectId = id || label?.toLowerCase().replace(/\s+/g, "-");
+    const generatedId = useId();
+    const selectId = id || generatedId;
+    const errorId = `${selectId}-error`;
+    const descriptionId = `${selectId}-description`;
 
     return (
       <div className="w-full">
@@ -31,14 +35,26 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             {label}
           </label>
         )}
+        {description && (
+          <p id={descriptionId} className="text-xs text-text-muted mb-1.5">
+            {description}
+          </p>
+        )}
         <select
           ref={ref}
           id={selectId}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={
+            [error && errorId, description && descriptionId]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
           className={`
             w-full px-3 py-2 text-sm
             bg-surface border rounded-lg
             text-foreground
             focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
+            focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background
             transition-colors duration-200
             disabled:opacity-50 disabled:cursor-not-allowed
             appearance-none
@@ -61,7 +77,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           ))}
         </select>
-        {error && <p className="mt-1.5 text-xs text-error">{error}</p>}
+        {error && (
+          <p id={errorId} role="alert" className="mt-1.5 text-xs text-error">
+            {error}
+          </p>
+        )}
       </div>
     );
   }

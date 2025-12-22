@@ -1,9 +1,37 @@
 """
-Eden’s Production MVP API Contract
+Eden's Production MVP API Contract
 
 This schema is a contract artifact for planning/testing.
-Implementation will be via Convex queries/mutations/actions, but the shapes and rules
-below are the canonical interface expectations derived from the feature spec.
+Implementation is via Convex queries/mutations in the `convex/` directory.
+
+## Implementation Mapping
+
+### Queries
+| GraphQL                  | Convex Module           | Function            |
+|--------------------------|-------------------------|---------------------|
+| isCrewEmailAllowed       | convex/crewEmails.ts    | isAllowed           |
+| locationOrderSettings    | convex/locationOrders.ts| listWithOrders      |
+| inventory                | convex/inventory.ts     | list                |
+| notices                  | convex/notices.ts       | list                |
+
+### Mutations
+| GraphQL                  | Convex Module           | Function            |
+|--------------------------|-------------------------|---------------------|
+| createInventory          | convex/inventory.ts     | create              |
+| updateInventoryName      | convex/inventory.ts     | updateName          |
+| updateInventoryQty       | convex/inventory.ts     | updateQty           |
+| updateInventoryLocation  | convex/inventory.ts     | updateLocation      |
+| deleteInventory          | convex/inventory.ts     | remove              |
+| upsertLocationOrder      | convex/locationOrders.ts| upsert              |
+| createNotice             | convex/notices.ts       | create              |
+| updateNotice             | convex/notices.ts       | update              |
+| deleteNotice             | convex/notices.ts       | remove              |
+
+### Authorization
+The `@requiresAuthorizedUser` directive maps to `requireAuthorizedUser()` or 
+`requireUserForMutation()` helpers in `convex/_auth.ts`.
+
+Last verified: 2025-12-22
 """
 
 schema {

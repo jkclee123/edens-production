@@ -161,13 +161,13 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T062 [P] Add consistent client-side error handling (toast + inline) in `components/ui/Toast.tsx`
-- [ ] T063 Add Zod validation helpers for shared rules in `lib/validation.ts`
-- [ ] T064 Harden Convex authorization across all modules by using `requireAuthorizedUser` in `convex/_auth.ts` and each file in `convex/*.ts`
-- [ ] T065 Improve performance for search/filter (debounce + minimal rerenders) in `components/inventory/InventoryToolbar.tsx` and `components/notice/NoticeSearch.tsx`
-- [ ] T066 [P] Add accessibility pass (labels, keyboard nav, focus states) in `components/AppShell.tsx` and `components/ui/*`
-- [ ] T067 [P] Ensure quickstart matches reality (env vars, seed commands, run commands) in `specs/001-edens-production-mvp/quickstart.md`
-- [ ] T068 [P] Validate GraphQL contract remains in sync by documenting mapping in `specs/001-edens-production-mvp/contracts/schema.graphql`
+- [X] T062 [P] Add consistent client-side error handling (toast + inline) in `components/ui/Toast.tsx`
+- [X] T063 Add Zod validation helpers for shared rules in `lib/validation.ts`
+- [X] T064 Harden Convex authorization across all modules by using `requireAuthorizedUser` in `convex/_auth.ts` and each file in `convex/*.ts`
+- [X] T065 Improve performance for search/filter (debounce + minimal rerenders) in `components/inventory/InventoryToolbar.tsx` and `components/notice/NoticeSearch.tsx`
+- [X] T066 [P] Add accessibility pass (labels, keyboard nav, focus states) in `components/AppShell.tsx` and `components/ui/*`
+- [X] T067 [P] Ensure quickstart matches reality (env vars, seed commands, run commands) in `specs/001-edens-production-mvp/quickstart.md`
+- [X] T068 [P] Validate GraphQL contract remains in sync by documenting mapping in `specs/001-edens-production-mvp/contracts/schema.graphql`
 
 ---
 
