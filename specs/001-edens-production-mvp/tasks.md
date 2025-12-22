@@ -30,14 +30,14 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize Bun + Next.js App Router project at repo root (creates/updates `package.json`, `app/layout.tsx`)
-- [ ] T002 [P] Configure Tailwind + global styles for branding colors in `tailwind.config.ts` and `app/globals.css`
-- [ ] T003 [P] Create base repo structure per plan in `components/`, `lib/`, `styles/`, `convex/` (add placeholders like `components/.gitkeep`)
-- [ ] T004 [P] Add environment templates and docs in `.env.example` and `README.md`
-- [ ] T005 [P] Add Vercel Bun configuration in `vercel.json`
-- [ ] T006 Add Convex dev dependency + scripts to `package.json` (e.g., `convex:dev`, `convex:deploy`)
-- [ ] T007 [P] Add Prettier + ESLint config for Next.js in `.prettierrc` and `.eslintrc.json`
-- [ ] T008 [P] Add shared UI primitives (button/input/table) in `components/ui/` (e.g., `components/ui/Button.tsx`)
+- [X] T001 Initialize Bun + Next.js App Router project at repo root (creates/updates `package.json`, `app/layout.tsx`)
+- [X] T002 [P] Configure Tailwind + global styles for branding colors in `tailwind.config.ts` and `app/globals.css`
+- [X] T003 [P] Create base repo structure per plan in `components/`, `lib/`, `styles/`, `convex/` (add placeholders like `components/.gitkeep`)
+- [X] T004 [P] Add environment templates and docs in `.env.example` and `README.md`
+- [X] T005 [P] Add Vercel Bun configuration in `vercel.json`
+- [X] T006 Add Convex dev dependency + scripts to `package.json` (e.g., `convex:dev`, `convex:deploy`)
+- [X] T007 [P] Add Prettier + ESLint config for Next.js in `.prettierrc` and `.eslintrc.json`
+- [X] T008 [P] Add shared UI primitives (button/input/table) in `components/ui/` (e.g., `components/ui/Button.tsx`)
 
 ---
 
@@ -47,20 +47,20 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Define Convex schema (tables + indexes + search indexes) in `convex/schema.ts` (per `data-model.md`)
-- [ ] T010 [P] Implement Convex auth guard helper `requireAuthorizedUser` in `convex/_auth.ts`
-- [ ] T011 [P] Create shared email normalization util in `lib/normalizeEmail.ts`
-- [ ] T012 Configure Auth.js/NextAuth (Google-only) in `auth.ts` and `app/api/auth/[...nextauth]/route.ts`
-- [ ] T013 Implement server-side Convex HTTP client wrapper in `lib/convexHttp.ts` (uses `NEXT_PUBLIC_CONVEX_URL`)
-- [ ] T014 Implement app providers (NextAuth + Convex + UI) in `app/providers.tsx`
-- [ ] T015 Implement route protection in `middleware.ts` (redirect unauthenticated users to `/login`)
-- [ ] T016 Implement app shell layout (top bar + collapsible side nav) in `components/AppShell.tsx` and `components/Nav.tsx`
-- [ ] T017 Apply branding + layout requirements (FR-001..FR-004) in `app/layout.tsx` and `components/AppShell.tsx`
-- [ ] T018 [P] Add shared loading + error UI in `components/Loading.tsx` and `components/ErrorState.tsx`
-- [ ] T019 Add app route groups and empty pages (placeholders) in `app/(app)/inventory/page.tsx` and `app/(app)/notice/page.tsx`
-- [ ] T020 [P] Add settings route placeholder in `app/(app)/settings/location-order/page.tsx`
-- [ ] T021 Implement seeding entrypoint to create initial crew allowlist + locations via Convex in `scripts/seed.ts`
-- [ ] T022 [P] Document seeding + env vars in `specs/001-edens-production-mvp/quickstart.md`
+- [X] T009 Define Convex schema (tables + indexes + search indexes) in `convex/schema.ts` (per `data-model.md`)
+- [X] T010 [P] Implement Convex auth guard helper `requireAuthorizedUser` in `convex/_auth.ts`
+- [X] T011 [P] Create shared email normalization util in `lib/normalizeEmail.ts`
+- [X] T012 Configure Auth.js/NextAuth (Google-only) in `auth.ts` and `app/api/auth/[...nextauth]/route.ts`
+- [X] T013 Implement server-side Convex HTTP client wrapper in `lib/convexHttp.ts` (uses `NEXT_PUBLIC_CONVEX_URL`)
+- [X] T014 Implement app providers (NextAuth + Convex + UI) in `app/providers.tsx`
+- [X] T015 Implement route protection in `middleware.ts` (redirect unauthenticated users to `/login`)
+- [X] T016 Implement app shell layout (top bar + collapsible side nav) in `components/AppShell.tsx` and `components/Nav.tsx`
+- [X] T017 Apply branding + layout requirements (FR-001..FR-004) in `app/layout.tsx` and `components/AppShell.tsx`
+- [X] T018 [P] Add shared loading + error UI in `components/Loading.tsx` and `components/ErrorState.tsx`
+- [X] T019 Add app route groups and empty pages (placeholders) in `app/(app)/inventory/page.tsx` and `app/(app)/notice/page.tsx`
+- [X] T020 [P] Add settings route placeholder in `app/(app)/settings/location-order/page.tsx`
+- [X] T021 Implement seeding entrypoint to create initial crew allowlist + locations via Convex in `scripts/seed.ts`
+- [X] T022 [P] Document seeding + env vars in `specs/001-edens-production-mvp/quickstart.md`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -74,16 +74,16 @@ description: "Actionable, dependency-ordered implementation tasks for Eden’s P
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Implement `crewEmails` query for allowlist check in `convex/crewEmails.ts`
-- [ ] T024 [P] [US1] Implement `users` upsert (authorized only) in `convex/users.ts`
-- [ ] T025 [US1] Enforce allowlist gating in NextAuth `signIn` callback in `auth.ts` (calls `convex/crewEmails.ts` via `lib/convexHttp.ts`)
-- [ ] T026 [US1] Prevent any user profile creation on unauthorized login in `auth.ts` (only call `convex/users.ts` after allowlist success)
-- [ ] T027 [US1] Implement login page with Google-only sign-in + clear errors in `app/(auth)/login/page.tsx`
-- [ ] T028 [US1] Implement unauthorized screen/route in `app/(auth)/unauthorized/page.tsx`
-- [ ] T029 [US1] Redirect behavior after login/logout in `app/(auth)/login/page.tsx` and `middleware.ts`
-- [ ] T030 [US1] Show main navigation (Inventory, Notice) only for authorized sessions in `components/AppShell.tsx`
-- [ ] T031 [US1] Add “cancel/fail login” messaging in `app/(auth)/login/page.tsx`
-- [ ] T032 [US1] Add allowlist email casing normalization path in `convex/crewEmails.ts` and `lib/normalizeEmail.ts`
+- [X] T023 [P] [US1] Implement `crewEmails` query for allowlist check in `convex/crewEmails.ts`
+- [X] T024 [P] [US1] Implement `users` upsert (authorized only) in `convex/users.ts`
+- [X] T025 [US1] Enforce allowlist gating in NextAuth `signIn` callback in `auth.ts` (calls `convex/crewEmails.ts` via `lib/convexHttp.ts`)
+- [X] T026 [US1] Prevent any user profile creation on unauthorized login in `auth.ts` (only call `convex/users.ts` after allowlist success)
+- [X] T027 [US1] Implement login page with Google-only sign-in + clear errors in `app/(auth)/login/page.tsx`
+- [X] T028 [US1] Implement unauthorized screen/route in `app/(auth)/unauthorized/page.tsx`
+- [X] T029 [US1] Redirect behavior after login/logout in `app/(auth)/login/page.tsx` and `middleware.ts`
+- [X] T030 [US1] Show main navigation (Inventory, Notice) only for authorized sessions in `components/AppShell.tsx`
+- [X] T031 [US1] Add "cancel/fail login" messaging in `app/(auth)/login/page.tsx`
+- [X] T032 [US1] Add allowlist email casing normalization path in `convex/crewEmails.ts` and `lib/normalizeEmail.ts`
 
 **Checkpoint**: US1 is fully functional and independently testable
 

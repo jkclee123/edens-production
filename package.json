@@ -1,0 +1,36 @@
+{
+  "name": "edens-production",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy"
+  },
+  "dependencies": {
+    "next": "^15.3.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "convex": "^1.22.0",
+    "next-auth": "^5.0.0-beta.25",
+    "@auth/core": "^0.37.4",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "typescript": "^5.8.3",
+    "tailwindcss": "^4.1.8",
+    "@tailwindcss/postcss": "^4.1.8",
+    "postcss": "^8.5.5",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "^15.3.4",
+    "@eslint/eslintrc": "^3.3.1",
+    "prettier": "^3.5.3"
+  }
+}
+

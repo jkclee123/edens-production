@@ -1,0 +1,11 @@
+node_modules/
+.next/
+dist/
+build/
+coverage/
+convex/_generated/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
