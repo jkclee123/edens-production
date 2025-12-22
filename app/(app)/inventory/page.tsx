@@ -5,7 +5,6 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Loading } from "@/components/Loading";
-import { ErrorState } from "@/components/ErrorState";
 import { InventoryToolbar } from "@/components/inventory/InventoryToolbar";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";

@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   type ReactNode,
+  type JSX,
 } from "react";
 
 export type ToastType = "success" | "error" | "warning" | "info";
