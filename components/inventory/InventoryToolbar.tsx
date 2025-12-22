@@ -7,6 +7,7 @@ import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 interface InventoryToolbarProps {
   search: string;
@@ -25,12 +26,13 @@ export function InventoryToolbar({
 }: InventoryToolbarProps) {
   const [isAdding, setIsAdding] = useState(false);
   const createItem = useMutation(api.inventory.create);
+  const userEmail = useUserEmail();
 
   const handleAddItem = async () => {
     setIsAdding(true);
     try {
       // Create with defaults: name="", qty=1, location=null
-      await createItem({});
+      await createItem({ userEmail });
     } catch (error) {
       console.error("Failed to create item:", error);
     } finally {

@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 interface DeleteInventoryButtonProps {
   id: Id<"inventory">;
@@ -15,11 +16,12 @@ export function DeleteInventoryButton({ id, name }: DeleteInventoryButtonProps) 
   const [showConfirm, setShowConfirm] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const removeItem = useMutation(api.inventory.remove);
+  const userEmail = useUserEmail();
 
   const handleDelete = async () => {
     setIsPending(true);
     try {
-      await removeItem({ id });
+      await removeItem({ id, userEmail });
       setShowConfirm(false);
     } catch (error) {
       console.error("Failed to delete item:", error);

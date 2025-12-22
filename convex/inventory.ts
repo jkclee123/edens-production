@@ -1,7 +1,35 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { requireAuthorizedUser } from "./_auth";
+import { requireAuthorizedUser, normalizeEmail } from "./_auth";
 import { Doc, Id } from "./_generated/dataModel";
+import { MutationCtx } from "./_generated/server";
+
+/**
+ * Get user for mutation tracking
+ * Looks up user by email since we may not have Convex Auth identity
+ */
+async function getUserForMutation(ctx: MutationCtx, userEmail?: string) {
+  // First try to get user from Convex Auth
+  const authResult = await requireAuthorizedUser(ctx);
+  if (authResult?.user) {
+    return authResult.user;
+  }
+
+  // Fallback: look up user by email (passed from client session)
+  if (userEmail) {
+    const normalized = normalizeEmail(userEmail);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_normalizedEmail", (q) => q.eq("normalizedEmail", normalized))
+      .first();
+    
+    if (user) {
+      return user;
+    }
+  }
+
+  return null;
+}
 
 /**
  * List active inventory items with optional search and location filter
@@ -133,12 +161,13 @@ export const create = mutation({
     name: v.optional(v.string()),
     qty: v.optional(v.number()),
     locationId: v.optional(v.id("locations")),
+    userEmail: v.optional(v.string()), // Passed from client session
   },
   handler: async (ctx, args) => {
-    const { user } = await requireAuthorizedUser(ctx);
+    const user = await getUserForMutation(ctx, args.userEmail);
 
     if (!user) {
-      throw new Error("User profile not found");
+      throw new Error("User profile not found. Please sign in again.");
     }
 
     const now = Date.now();
@@ -169,12 +198,13 @@ export const updateName = mutation({
   args: {
     id: v.id("inventory"),
     name: v.string(),
+    userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { user } = await requireAuthorizedUser(ctx);
+    const user = await getUserForMutation(ctx, args.userEmail);
 
     if (!user) {
-      throw new Error("User profile not found");
+      throw new Error("User profile not found. Please sign in again.");
     }
 
     const item = await ctx.db.get(args.id);
@@ -199,12 +229,13 @@ export const updateQty = mutation({
   args: {
     id: v.id("inventory"),
     qty: v.number(),
+    userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { user } = await requireAuthorizedUser(ctx);
+    const user = await getUserForMutation(ctx, args.userEmail);
 
     if (!user) {
-      throw new Error("User profile not found");
+      throw new Error("User profile not found. Please sign in again.");
     }
 
     const item = await ctx.db.get(args.id);
@@ -233,12 +264,13 @@ export const updateLocation = mutation({
   args: {
     id: v.id("inventory"),
     locationId: v.optional(v.id("locations")),
+    userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { user } = await requireAuthorizedUser(ctx);
+    const user = await getUserForMutation(ctx, args.userEmail);
 
     if (!user) {
-      throw new Error("User profile not found");
+      throw new Error("User profile not found. Please sign in again.");
     }
 
     const item = await ctx.db.get(args.id);
@@ -268,12 +300,15 @@ export const updateLocation = mutation({
  * Soft delete an inventory item (set isActive=false)
  */
 export const remove = mutation({
-  args: { id: v.id("inventory") },
+  args: {
+    id: v.id("inventory"),
+    userEmail: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const { user } = await requireAuthorizedUser(ctx);
+    const user = await getUserForMutation(ctx, args.userEmail);
 
     if (!user) {
-      throw new Error("User profile not found");
+      throw new Error("User profile not found. Please sign in again.");
     }
 
     const item = await ctx.db.get(args.id);

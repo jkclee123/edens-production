@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 interface QtyStepperProps {
   id: Id<"inventory">;
@@ -16,6 +17,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
   const [isPending, setIsPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const updateQty = useMutation(api.inventory.updateQty);
+  const userEmail = useUserEmail();
 
   // Sync local value with prop
   useEffect(() => {
@@ -45,7 +47,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
     setLocalQty(validQty);
 
     try {
-      await updateQty({ id, qty: validQty });
+      await updateQty({ id, qty: validQty, userEmail });
     } catch (error) {
       // Revert on error
       setLocalQty(qty);

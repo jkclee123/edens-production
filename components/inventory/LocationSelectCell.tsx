@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 interface LocationSelectCellProps {
   id: Id<"inventory">;
@@ -14,6 +15,7 @@ interface LocationSelectCellProps {
 export function LocationSelectCell({ id, locationId, locations }: LocationSelectCellProps) {
   const [isPending, setIsPending] = useState(false);
   const updateLocation = useMutation(api.inventory.updateLocation);
+  const userEmail = useUserEmail();
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
@@ -25,7 +27,7 @@ export function LocationSelectCell({ id, locationId, locations }: LocationSelect
 
     setIsPending(true);
     try {
-      await updateLocation({ id, locationId: newLocationId });
+      await updateLocation({ id, locationId: newLocationId, userEmail });
     } catch (error) {
       console.error("Failed to update location:", error);
     } finally {

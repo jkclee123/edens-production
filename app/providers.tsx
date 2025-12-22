@@ -10,6 +10,18 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
+/**
+ * Application providers
+ * 
+ * Note: We use ConvexProvider (not ConvexProviderWithAuth) because:
+ * - NextAuth handles authentication (login/logout/session)
+ * - Next.js middleware protects routes
+ * - User identity is passed to Convex mutations via userEmail parameter
+ * 
+ * For full Convex Auth integration, you would need to:
+ * 1. Configure an external JWT provider in the Convex dashboard
+ * 2. Use ConvexProviderWithAuth with proper token fetching
+ */
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>

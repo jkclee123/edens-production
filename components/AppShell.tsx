@@ -17,7 +17,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex h-screen flex-col bg-background">
       {/* Top Bar */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-4">
+      <header className="flex h-14 shrink-0 items-center justify-between px-4">
         {/* Left: Menu toggle */}
         <button
           onClick={() => setIsNavCollapsed(!isNavCollapsed)}
@@ -44,9 +44,6 @@ export function AppShell({ children }: AppShellProps) {
           href="/inventory"
           className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
-            <span className="text-lg font-bold text-white">E</span>
-          </div>
           <span className="text-lg font-semibold text-foreground font-display">
             Eden&apos;s Production
           </span>
@@ -153,8 +150,8 @@ export function AppShell({ children }: AppShellProps) {
         {/* Sidebar */}
         <aside
           className={`
-            shrink-0 border-r border-border bg-surface transition-all duration-300
-            ${isNavCollapsed ? "w-14" : "w-56"}
+            shrink-0 transition-all duration-300
+            ${isNavCollapsed ? "w-16" : "w-56"}
           `}
         >
           <Nav isCollapsed={isNavCollapsed} />

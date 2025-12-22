@@ -4,10 +4,14 @@ import { requireAuthorizedUser } from "./_auth";
 
 /**
  * List all active locations
+ * 
+ * Note: This query is protected by Next.js middleware.
+ * If Convex Auth is configured, it also verifies the user's identity.
  */
 export const list = query({
   args: {},
   handler: async (ctx) => {
+    // Check authorization (doesn't throw if no Convex Auth identity)
     await requireAuthorizedUser(ctx);
 
     return await ctx.db

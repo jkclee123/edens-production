@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 interface EditableNameCellProps {
   id: Id<"inventory">;
@@ -16,6 +17,7 @@ export function EditableNameCell({ id, name }: EditableNameCellProps) {
   const [isPending, setIsPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const updateName = useMutation(api.inventory.updateName);
+  const userEmail = useUserEmail();
 
   // Sync local value with prop when not editing
   useEffect(() => {
@@ -40,7 +42,7 @@ export function EditableNameCell({ id, name }: EditableNameCellProps) {
 
     setIsPending(true);
     try {
-      await updateName({ id, name: value });
+      await updateName({ id, name: value, userEmail });
     } catch (error) {
       // Revert on error
       setValue(name);

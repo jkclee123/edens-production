@@ -65,19 +65,6 @@ function UnauthorizedContent() {
         </h1>
         <p className="mt-3 text-text-muted">{errorInfo.message}</p>
 
-        {/* Actions */}
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link href="/login">
-            <Button variant="primary">Try Again</Button>
-          </Link>
-          <Button
-            variant="secondary"
-            onClick={() => (window.location.href = "mailto:admin@example.com")}
-          >
-            Contact Support
-          </Button>
-        </div>
-
         {/* Back to login */}
         <p className="mt-8 text-sm text-text-secondary">
           <Link href="/login" className="text-accent hover:underline">
