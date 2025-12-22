@@ -109,7 +109,7 @@ export default function LocationOrderSettingsPage() {
             </div>
             <h3 className="text-lg font-medium text-foreground mb-1">No locations yet</h3>
             <p className="text-sm text-text-muted">
-              Locations will appear here once they're added to the system.
+              Locations will appear here once they&apos;re added to the system.
             </p>
           </div>
         </div>

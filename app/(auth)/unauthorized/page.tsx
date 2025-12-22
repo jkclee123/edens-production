@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 
 function UnauthorizedContent() {
   const searchParams = useSearchParams();
