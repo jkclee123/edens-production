@@ -28,9 +28,6 @@ export default function LocationOrderSettingsPage() {
           <h1 className="text-2xl font-semibold text-foreground font-display">
             Location Order Settings
           </h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Customize how locations are ordered in your inventory view. Lower numbers appear first.
-          </p>
         </div>
         <Link
           href="/inventory"
@@ -49,37 +46,6 @@ export default function LocationOrderSettingsPage() {
           </svg>
           Back to Inventory
         </Link>
-      </div>
-
-      {/* Instructions */}
-      <div className="card bg-accent/5 border-accent/20">
-        <div className="flex gap-3">
-          <div className="shrink-0 w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-accent"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div className="text-sm text-text-muted">
-            <p className="font-medium text-foreground mb-1">How ordering works:</p>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Items with <strong>no location</strong> always appear first</li>
-              <li>Locations with order values are sorted numerically (lowest first)</li>
-              <li>Locations without order values appear last, sorted alphabetically</li>
-              <li>Click a cell to set or change the order value</li>
-              <li>Leave empty to remove the order and sort alphabetically</li>
-            </ul>
-          </div>
-        </div>
       </div>
 
       {/* Locations table */}
@@ -149,9 +115,6 @@ export default function LocationOrderSettingsPage() {
       <div className="card">
         <h3 className="text-sm font-medium text-foreground mb-3">Current Order Preview</h3>
         <div className="flex flex-wrap gap-2">
-          <div className="px-3 py-1.5 text-xs rounded-full bg-accent/10 text-accent border border-accent/20">
-            1. No Location
-          </div>
           {[...locationsWithOrders]
             .sort((a, b) => {
               // Locations with order values come first
@@ -172,7 +135,7 @@ export default function LocationOrderSettingsPage() {
                     : "bg-surface border-border/50 text-text-muted"
                 }`}
               >
-                {index + 2}. {location.name}
+                {index + 1}. {location.name}
                 {order !== null && <span className="ml-1 text-text-muted">({order})</span>}
               </div>
             ))}

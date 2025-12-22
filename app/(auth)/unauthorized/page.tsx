@@ -66,7 +66,7 @@ function UnauthorizedContent() {
 
         {/* Back to login */}
         <p className="mt-8 text-sm text-text-secondary">
-          <Link href="/login" className="text-accent hover:underline">
+          <Link href="/login" className="text-muted hover:underline hover:text-secondary">
             ← Back to login
           </Link>
         </p>
