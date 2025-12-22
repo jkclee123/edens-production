@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import icon from "@/app/icon.png";
+import logo from "@/app/crew.png";
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -34,7 +34,7 @@ function LoginContent() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Image
-            src={icon}
+            src={logo}
             alt="Eden's Production"
             width={128}
             height={128}

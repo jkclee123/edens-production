@@ -2,8 +2,10 @@
 
 import { useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { Nav } from "./Nav";
+import logo from "@/app/crew.png";
 
 interface AppShellProps {
   children: ReactNode;
@@ -83,9 +85,14 @@ export function AppShell({ children }: AppShellProps) {
           href="/inventory"
           className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
         >
-          <span className="text-lg font-semibold text-foreground font-display">
-            Eden&apos;s Production
-          </span>
+          <Image
+            src={logo}
+            alt="Eden's Production"
+            width={96}
+            height={96}
+            priority
+            className="object-contain"
+          />
         </Link>
 
         {/* Right: Settings */}
