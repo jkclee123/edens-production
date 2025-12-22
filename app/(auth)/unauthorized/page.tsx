@@ -14,7 +14,7 @@ function UnauthorizedContent() {
         return {
           title: "Access Denied",
           message:
-            "Your email is not authorized to access this application. Please contact an administrator if you believe this is an error.",
+            "Your email is not authorized to access this application.",
         };
       case "no_email":
         return {

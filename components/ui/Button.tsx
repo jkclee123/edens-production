@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-surface-elevated text-foreground border border-border hover:border-accent",
+    "bg-surface text-foreground border border-border hover:border-accent",
   secondary:
     "bg-surface-elevated text-foreground border border-border hover:bg-border",
   ghost: "bg-transparent text-foreground hover:bg-surface-elevated",
@@ -47,7 +47,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={`
           inline-flex items-center justify-center gap-2 font-medium rounded-lg
           transition-colors duration-200
-          focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background
+          focus:bg-surface-elevated focus:border-accent
           disabled:opacity-50 disabled:cursor-not-allowed
           ${variantClasses[variant]}
           ${sizeClasses[size]}

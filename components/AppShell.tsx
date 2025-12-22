@@ -10,7 +10,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { data: session } = useSession();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
