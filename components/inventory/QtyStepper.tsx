@@ -109,6 +109,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
         className="w-7 h-7 flex items-center justify-center rounded
                    bg-surface-elevated border border-border
                    hover:bg-border hover:outline-none hover:ring-1 hover:ring-accent
+                   focus:outline-none focus:ring-1 focus:ring-accent
                    disabled:opacity-50 disabled:cursor-not-allowed
                    transition-colors duration-150"
         aria-label="Decrease quantity"
@@ -159,6 +160,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
         className="w-7 h-7 flex items-center justify-center rounded
                    bg-surface-elevated border border-border
                    hover:bg-border hover:outline-none hover:ring-1 hover:ring-accent
+                   focus:outline-none focus:ring-1 focus:ring-accent
                    disabled:opacity-50 disabled:cursor-not-allowed
                    transition-colors duration-150"
         aria-label="Increase quantity"
