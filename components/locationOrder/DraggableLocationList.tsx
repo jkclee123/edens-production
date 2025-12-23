@@ -66,6 +66,21 @@ function SortableItem({ item, index }: SortableItemProps) {
         ${isDragging ? "opacity-50 scale-[0.98] z-50 shadow-xl" : ""}
       `}
     >
+
+      {/* Order number badge */}
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-surface flex items-center justify-center">
+        <span className="text-sm font-bold text-foreground font-mono">
+          {index + 1}
+        </span>
+      </div>
+
+      {/* Location name */}
+      <div className="flex-1 min-w-0">
+        <h3 className="text-base font-medium text-foreground truncate">
+          {item.location.name}
+        </h3>
+      </div>
+
       {/* Drag handle */}
       <div
         {...attributes}
@@ -87,19 +102,6 @@ function SortableItem({ item, index }: SortableItemProps) {
         </svg>
       </div>
 
-      {/* Order number badge */}
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-surface flex items-center justify-center">
-        <span className="text-sm font-bold text-foreground font-mono">
-          {index + 1}
-        </span>
-      </div>
-
-      {/* Location name */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-base font-medium text-foreground truncate">
-          {item.location.name}
-        </h3>
-      </div>
     </div>
   );
 }
