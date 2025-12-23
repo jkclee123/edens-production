@@ -110,7 +110,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
                    bg-surface-elevated border border-border
                    hover:bg-border hover:outline-none hover:ring-1 hover:ring-accent
                    focus:outline-none focus:ring-1 focus:ring-accent
-                   disabled:opacity-50 disabled:cursor-not-allowed
+                   cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                    transition-colors duration-150"
         aria-label="Decrease quantity"
       >
@@ -146,7 +146,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
           className="w-14 h-7 px-2 text-sm text-center font-mono
                      bg-surface border border-border rounded
                      hover:border-accent focus:outline-none focus:ring-1 focus:ring-accent
-                     disabled:opacity-50
+                     cursor-pointer disabled:opacity-50
                      transition-colors duration-150"
           aria-label={`Edit quantity: ${localQty}`}
         >
@@ -161,7 +161,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
                    bg-surface-elevated border border-border
                    hover:bg-border hover:outline-none hover:ring-1 hover:ring-accent
                    focus:outline-none focus:ring-1 focus:ring-accent
-                   disabled:opacity-50 disabled:cursor-not-allowed
+                   cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                    transition-colors duration-150"
         aria-label="Increase quantity"
       >
