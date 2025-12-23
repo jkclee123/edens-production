@@ -21,25 +21,18 @@ export const list = query({
   handler: async (ctx, args) => {
     const authResult = await requireAuthorizedUser(ctx);
 
-    let items: Doc<"inventory">[];
+    // Regular query with isActive filter
+    let items = await ctx.db
+      .query("inventory")
+      .withIndex("by_isActive", (q) => q.eq("isActive", true))
+      .collect();
 
-    // Use search index if search query provided
+    // Apply free-text substring search if provided
     if (args.search && args.search.trim()) {
-      const searchResults = await ctx.db
-        .query("inventory")
-        .withSearchIndex("search_name", (q) => {
-          let query = q.search("name", args.search!.trim());
-          query = query.eq("isActive", true);
-          return query;
-        })
-        .collect();
-      items = searchResults;
-    } else {
-      // Regular query with isActive filter
-      items = await ctx.db
-        .query("inventory")
-        .withIndex("by_isActive", (q) => q.eq("isActive", true))
-        .collect();
+      const searchStr = args.search.trim().toLowerCase();
+      items = items.filter((item) => 
+        item.name.toLowerCase().includes(searchStr)
+      );
     }
 
     // Apply location filter if specified

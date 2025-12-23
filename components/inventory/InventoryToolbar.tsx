@@ -16,7 +16,7 @@ interface InventoryToolbarProps {
   locations: Doc<"locations">[];
 }
 
-const DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 500;
 
 export function InventoryToolbar({
   search,
@@ -64,6 +64,12 @@ export function InventoryToolbar({
     onSearchChange("");
   }, [onSearchChange]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      onSearchChange(localSearch);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
       {/* Search */}
@@ -85,6 +91,7 @@ export function InventoryToolbar({
           type="text"
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Search items..."
           className="w-full pl-9 pr-8 py-2 text-sm
                      bg-surface border border-border rounded-lg

@@ -14,17 +14,9 @@ export default function InventoryPage() {
   const [locationFilter, setLocationFilter] = useState<"all" | "none" | Id<"locations">>("all");
   const userEmail = useUserEmail();
 
-  // Debounced search value for API calls
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
-  // Simple debounce using setTimeout
+  // Search is already debounced by InventoryToolbar
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
-    // Clear previous timeout and set new one
-    const timeoutId = setTimeout(() => {
-      setDebouncedSearch(value);
-    }, 300);
-    return () => clearTimeout(timeoutId);
   }, []);
 
   // Fetch locations for the toolbar and table
@@ -32,15 +24,17 @@ export default function InventoryPage() {
 
   // Fetch inventory items with filters (includes per-user location ordering)
   const inventory = useQuery(api.inventory.list, {
-    search: debouncedSearch || undefined,
+    search: search || undefined,
     locationId: locationFilter,
     userEmail,
   });
 
-  // Loading state
-  if (locations === undefined || inventory === undefined) {
+  // Initial loading state only (don't blank out on search updates)
+  const isInitialLoad = locations === undefined || (inventory === undefined && search === "");
+
+  if (isInitialLoad) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
         </div>
@@ -50,7 +44,7 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
       </div>
@@ -60,14 +54,20 @@ export default function InventoryPage() {
         onSearchChange={handleSearchChange}
         locationFilter={locationFilter}
         onLocationFilterChange={setLocationFilter}
-        locations={locations}
+        locations={locations ?? []}
       />
 
-      <InventoryTable
-        groups={inventory.groups}
-        locations={locations}
-        totalCount={inventory.totalCount}
-      />
+      {inventory === undefined ? (
+        <div className="flex justify-center py-12">
+          <Loading message="Updating search results..." />
+        </div>
+      ) : (
+        <InventoryTable
+          groups={inventory.groups}
+          locations={locations ?? []}
+          totalCount={inventory.totalCount}
+        />
+      )}
     </div>
   );
 }
