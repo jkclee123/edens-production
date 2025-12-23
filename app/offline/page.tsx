@@ -21,7 +21,7 @@ export default function OfflinePage() {
         
         <div className="space-y-2">
           <h1 className="text-2xl font-display font-bold text-foreground">
-            You're Offline
+            You&apos;re Offline
           </h1>
           <p className="text-text-muted">
             Check your internet connection and try again.
