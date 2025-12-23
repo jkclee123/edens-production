@@ -53,7 +53,7 @@ export function AppShell({ children }: AppShellProps) {
   }, []);
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex h-screen flex-col bg-background pt-safe">
       {/* Top Bar */}
       <header role="banner" className="flex h-14 shrink-0 items-center justify-between px-4">
         {/* Left: Menu toggle */}
@@ -221,7 +221,7 @@ export function AppShell({ children }: AppShellProps) {
         <aside
           id="main-navigation"
           className={`
-            fixed left-0 top-14 bottom-0 z-50
+            fixed left-0 top-[calc(3.5rem+env(safe-area-inset-top))] bottom-0 z-50
             transition-transform duration-100 ease-out
             ${isNavCollapsed 
               ? "-translate-x-full lg:translate-x-0 lg:w-16" 
@@ -236,7 +236,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="hidden lg:block shrink-0 w-16 transition-all duration-300" aria-hidden="true" />
 
         {/* Main content */}
-        <main role="main" className="flex-1 overflow-auto p-6">{children}</main>
+        <main role="main" className="flex-1 overflow-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">{children}</main>
       </div>
     </div>
   );

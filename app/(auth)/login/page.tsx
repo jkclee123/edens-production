@@ -29,7 +29,7 @@ function LoginContent() {
   const errorMessage = getErrorMessage(error);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pt-safe pb-safe">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 text-center">

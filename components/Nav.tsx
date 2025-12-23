@@ -96,7 +96,7 @@ export function Nav({ isCollapsed, onNavSelect }: NavProps) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Main navigation" className="flex flex-col gap-1 p-2">
+    <nav aria-label="Main navigation" className="flex flex-col gap-1 p-2 pb-safe">
       <ul role="list" className="flex flex-col gap-1">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
