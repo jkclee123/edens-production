@@ -258,9 +258,6 @@ export function DraggableLocationList({ locations }: DraggableLocationListProps)
             </svg>
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">No locations yet</h3>
-          <p className="text-sm text-text-muted max-w-sm mx-auto">
-            Locations will appear here once they're added to the system.
-          </p>
         </div>
       )}
     </div>
