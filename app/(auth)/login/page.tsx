@@ -53,10 +53,10 @@ function LoginContent() {
         )}
 
         {/* Sign in card */}
-        <div>
+        <div className="flex justify-center">
           <Button
             onClick={() => signIn("google", { callbackUrl })}
-            className="w-full"
+            className="w-[80%]"
             size="lg"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
