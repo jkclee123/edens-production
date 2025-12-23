@@ -53,7 +53,7 @@ export function TableRow({ children, className = "", onClick }: TableRowProps) {
       onClick={onClick}
       className={`
         border-b border-border
-        hover:bg-surface-elevated/50
+        hover:bg-surface-elevated/60
         transition-colors duration-150
         ${onClick ? "cursor-pointer" : ""}
         ${className}

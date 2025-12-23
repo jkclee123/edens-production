@@ -70,7 +70,7 @@ function SortableItem({ item, index }: SortableItemProps) {
       <div
         {...attributes}
         {...listeners}
-        className="flex-shrink-0 text-text-muted group-hover:text-accent transition-colors cursor-grab active:cursor-grabbing touch-none"
+        className="flex-shrink-0 -m-5 p-5 text-text-muted group-hover:text-accent transition-colors cursor-grab active:cursor-grabbing touch-none"
       >
         <svg
           className="w-5 h-5"

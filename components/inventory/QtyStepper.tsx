@@ -108,7 +108,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
         disabled={isPending || localQty <= 0}
         className="w-7 h-7 flex items-center justify-center rounded
                    bg-surface-elevated border border-border
-                   hover:bg-border focus:outline-none focus:ring-1 focus:ring-accent
+                   hover:bg-border hover:outline-none hover:ring-1 hover:ring-accent
                    disabled:opacity-50 disabled:cursor-not-allowed
                    transition-colors duration-150"
         aria-label="Decrease quantity"
@@ -122,6 +122,8 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
         <input
           ref={inputRef}
           type="number"
+          inputMode="numeric"
+          pattern="[0-9]*"
           min="0"
           value={localQty}
           onChange={handleInputChange}
@@ -156,7 +158,7 @@ export function QtyStepper({ id, qty }: QtyStepperProps) {
         disabled={isPending}
         className="w-7 h-7 flex items-center justify-center rounded
                    bg-surface-elevated border border-border
-                   hover:bg-border focus:outline-none focus:ring-1 focus:ring-accent
+                   hover:bg-border hover:outline-none hover:ring-1 hover:ring-accent
                    disabled:opacity-50 disabled:cursor-not-allowed
                    transition-colors duration-150"
         aria-label="Increase quantity"

@@ -61,7 +61,7 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
     <div className="card p-0 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent">
+          <TableRow className="bg-surface hover:bg-transparent">
             <TableHead className="w-[35%] min-w-[100px]">Name</TableHead>
             <TableHead className="w-[20%]">Qty</TableHead>
             <TableHead className="w-[20%] min-w-[120px]">Last Updated</TableHead>
@@ -112,7 +112,7 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
         </div>
       </TableGroupHeader>
       {group.items.map((item) => (
-        <TableRow key={item._id}>
+        <TableRow className="bg-surface-elevated" key={item._id}>
           <TableCell>
             <EditableNameCell id={item._id} name={item.name} />
           </TableCell>
