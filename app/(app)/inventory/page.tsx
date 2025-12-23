@@ -53,9 +53,6 @@ export default function InventoryPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
-        <span className="text-sm text-text-muted">
-          {inventory.totalCount} {inventory.totalCount === 1 ? "item" : "items"}
-        </span>
       </div>
 
       <InventoryToolbar

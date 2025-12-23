@@ -68,6 +68,7 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
             <TableHead className="w-[40%] min-w-[200px]">Name</TableHead>
             <TableHead className="w-[120px]">Qty</TableHead>
             <TableHead className="w-[200px]">Location</TableHead>
+            <TableHead className="w-[150px]">Last Updated</TableHead>
             <TableHead className="w-[60px]">
               <span className="sr-only">Actions</span>
             </TableHead>
@@ -95,9 +96,19 @@ interface InventoryGroupRowsProps {
 function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
   const groupName = group.location?.name ?? "No location";
 
+  const formatDateTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <>
-      <TableGroupHeader colSpan={4}>
+      <TableGroupHeader colSpan={5}>
         <div className="flex items-center gap-2">
           <span>{groupName}</span>
           <span className="text-text-secondary">({group.items.length})</span>
@@ -117,6 +128,11 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
               locationId={item.locationId}
               locations={locations}
             />
+          </TableCell>
+          <TableCell>
+            <span className="text-sm text-text-secondary whitespace-nowrap">
+              {formatDateTime(item.updatedAt)}
+            </span>
           </TableCell>
           <TableCell className="text-right">
             <DeleteInventoryButton id={item._id} name={item.name} />
