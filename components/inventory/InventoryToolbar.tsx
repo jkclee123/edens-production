@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
+import { Dialog, Input } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import { useToast, getErrorMessage } from "@/components/ui/Toast";
 
@@ -26,8 +27,12 @@ export function InventoryToolbar({
   locations,
 }: InventoryToolbarProps) {
   const [isAdding, setIsAdding] = useState(false);
+  const [isAddingLocation, setIsAddingLocation] = useState(false);
+  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+  const [newLocationName, setNewLocationName] = useState("");
   const [localSearch, setLocalSearch] = useState(search);
   const createItem = useMutation(api.inventory.create);
+  const createLocation = useMutation(api.locations.create);
   const userEmail = useUserEmail();
   const { error: showError } = useToast();
 
@@ -56,6 +61,23 @@ export function InventoryToolbar({
       showError(getErrorMessage(error));
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleCreateLocation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = newLocationName.trim();
+    if (!name) return;
+
+    setIsAddingLocation(true);
+    try {
+      await createLocation({ name, userEmail });
+      setNewLocationName("");
+      setIsLocationDialogOpen(false);
+    } catch (error) {
+      showError(getErrorMessage(error));
+    } finally {
+      setIsAddingLocation(false);
     }
   };
 
@@ -145,13 +167,66 @@ export function InventoryToolbar({
         ))}
       </select>
 
-      {/* Add button */}
-      <Button onClick={handleAddItem} isLoading={isAdding} className="w-full sm:w-auto">
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-        Add Item
-      </Button>
+      <div className="flex w-full sm:w-auto gap-2">
+
+        {/* Add Item button */}
+        <Button onClick={handleAddItem} isLoading={isAdding} className="flex-1 sm:flex-none">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Add Item
+        </Button>
+      </div>
+
+        {/* Add Location button */}
+        <Button
+          onClick={() => setIsLocationDialogOpen(true)}
+          className="flex-1 sm:flex-none"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+          Add Location
+        </Button>
+
+      <Dialog
+        title="Add New Location"
+        isOpen={isLocationDialogOpen}
+        onClose={() => setIsLocationDialogOpen(false)}
+      >
+        <form onSubmit={handleCreateLocation} className="space-y-4">
+          <Input
+            value={newLocationName}
+            onChange={(e) => setNewLocationName(e.target.value)}
+            placeholder="Location Name"
+            autoFocus
+            required
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsLocationDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" isLoading={isAddingLocation} disabled={!newLocationName.trim()}>
+              Add
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 }
