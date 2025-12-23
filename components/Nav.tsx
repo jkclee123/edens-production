@@ -21,18 +21,33 @@ const navItems: NavItem[] = [
         stroke="currentColor"
         aria-hidden="true"
       >
+        {/* Top Box */}
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+          d="M9 3h6v6H9V3z M12 3v6"
+        />
+        {/* Bottom Left Box */}
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M4 11h6v6H4v-6z M7 11v6"
+        />
+        {/* Bottom Right Box */}
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M14 11h6v6h-6v-6z M17 11v6"
         />
       </svg>
     ),
   },
   {
     href: "/notice",
-    label: "Notice",
+    label: "Notice Board",
     icon: (
       <svg
         className="h-5 w-5"
@@ -45,14 +60,14 @@ const navItems: NavItem[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
     ),
   },
   {
     href: "/todo",
-    label: "Todo",
+    label: "Todo List",
     icon: (
       <svg
         className="h-5 w-5"
@@ -65,7 +80,7 @@ const navItems: NavItem[] = [
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+          d="M5 5l2 2 4-4m-6 9l2 2 4-4m-6 9l2 2 4-4M13 6h8M13 13h8M13 20h8"
         />
       </svg>
     ),
