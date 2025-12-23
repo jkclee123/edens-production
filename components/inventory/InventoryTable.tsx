@@ -50,10 +50,7 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
             </svg>
           </div>
           <div>
-            <p className="text-foreground font-medium">No inventory items yet</p>
-            <p className="text-sm text-text-muted mt-1">
-              Click &quot;Add Item&quot; to create your first item
-            </p>
+            <p className="text-foreground font-medium">No inventory items</p>
           </div>
         </div>
       </div>
@@ -65,11 +62,11 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[40%] min-w-[200px]">Name</TableHead>
-            <TableHead className="w-[120px]">Qty</TableHead>
-            <TableHead className="w-[200px]">Location</TableHead>
-            <TableHead className="w-[150px]">Last Updated</TableHead>
-            <TableHead className="w-[60px]">
+            <TableHead className="w-[35%] min-w-[100px]">Name</TableHead>
+            <TableHead className="w-[10%]">Qty</TableHead>
+            <TableHead className="w-[10%] min-w-[120px]">Last Updated</TableHead>
+            <TableHead className="w-[30%] min-w-[140px]">Location</TableHead>
+            <TableHead className="w-[10%]">
               <span className="sr-only">Actions</span>
             </TableHead>
           </TableRow>
@@ -123,16 +120,16 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
             <QtyStepper id={item._id} qty={item.qty} />
           </TableCell>
           <TableCell>
+            <span className="text-sm text-text-secondary whitespace-nowrap">
+              {formatDateTime(item.updatedAt)}
+            </span>
+          </TableCell>
+          <TableCell>
             <LocationSelectCell
               id={item._id}
               locationId={item.locationId}
               locations={locations}
             />
-          </TableCell>
-          <TableCell>
-            <span className="text-sm text-text-secondary whitespace-nowrap">
-              {formatDateTime(item.updatedAt)}
-            </span>
           </TableCell>
           <TableCell className="text-right">
             <DeleteInventoryButton id={item._id} name={item.name} />

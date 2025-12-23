@@ -20,7 +20,6 @@ export function NoticeCard({ notice }: NoticeCardProps) {
   const [editContent, setEditContent] = useState(notice.content);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -99,6 +98,10 @@ export function NoticeCard({ notice }: NoticeCardProps) {
   }, [editContent, notice._id, notice.content, updateNotice, userEmail]);
 
   const handleDelete = useCallback(async () => {
+    if (!window.confirm("Are you sure you want to delete this notice? This action cannot be undone.")) {
+      return;
+    }
+
     setIsDeleting(true);
     setError(null);
 
@@ -106,7 +109,6 @@ export function NoticeCard({ notice }: NoticeCardProps) {
       await deleteNotice({ id: notice._id, userEmail });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete notice");
-      setShowDeleteConfirm(false);
     } finally {
       setIsDeleting(false);
     }
@@ -120,16 +122,14 @@ export function NoticeCard({ notice }: NoticeCardProps) {
     }
   }, [handleCancelEdit, handleSaveEdit]);
 
-  const isEdited = notice.updatedAt > notice.createdAt;
-
   return (
     <article className="card animate-fade-in">
       {/* Header with author info and actions */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 min-w-0">
           {/* Avatar placeholder */}
-          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-medium text-accent">
+          <div className="w-8 h-8 rounded-full bg-accent/40 flex items-center justify-center flex-shrink-0">
+            <span className="text-xs font-medium text-foreground">
               {notice.createdByName.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -139,15 +139,12 @@ export function NoticeCard({ notice }: NoticeCardProps) {
             </p>
             <p className="text-xs text-text-muted">
               {formatRelativeTime(notice.createdAt)}
-              {isEdited && (
-                <span className="ml-1 text-text-secondary">(edited)</span>
-              )}
             </p>
           </div>
         </div>
 
         {/* Actions - only show for creator */}
-        {notice.canEdit && !isEditing && !showDeleteConfirm && (
+        {notice.canEdit && !isEditing && (
           <div className="flex items-center gap-1">
             <button
               onClick={handleStartEdit}
@@ -159,8 +156,9 @@ export function NoticeCard({ notice }: NoticeCardProps) {
               </svg>
             </button>
             <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="p-1.5 rounded-md text-text-muted hover:text-error hover:bg-error/10 transition-colors"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="p-1.5 rounded-md text-text-muted hover:text-error hover:bg-error/10 transition-colors disabled:opacity-50"
               aria-label="Delete notice"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,7 +179,7 @@ export function NoticeCard({ notice }: NoticeCardProps) {
               setEditContent(e.target.value);
               if (error) setError(null);
             }}
-            rows={3}
+            rows={10}
             className="w-full px-3 py-2 text-sm
                        bg-surface border border-border rounded-lg
                        text-foreground placeholder:text-text-muted
@@ -219,41 +217,15 @@ export function NoticeCard({ notice }: NoticeCardProps) {
             Press <kbd className="px-1.5 py-0.5 rounded bg-surface text-text-muted">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-surface text-text-muted">Enter</kbd> to save, <kbd className="px-1.5 py-0.5 rounded bg-surface text-text-muted">Esc</kbd> to cancel
           </p>
         </div>
-      ) : showDeleteConfirm ? (
-        <div className="space-y-3">
-          <p className="text-sm text-foreground">
-            Are you sure you want to delete this notice? This action cannot be undone.
+      ) : (
+        <div className="space-y-2">
+          <p className="text-sm text-foreground whitespace-pre-wrap break-words">
+            {notice.content}
           </p>
-          
           {error && (
             <p className="text-sm text-error animate-fade-in">{error}</p>
           )}
-
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowDeleteConfirm(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="danger"
-              size="sm"
-              onClick={handleDelete}
-              isLoading={isDeleting}
-            >
-              Delete
-            </Button>
-          </div>
         </div>
-      ) : (
-        <p className="text-sm text-foreground whitespace-pre-wrap break-words">
-          {notice.content}
-        </p>
       )}
     </article>
   );

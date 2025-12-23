@@ -25,7 +25,7 @@ interface TableHeaderProps {
 export function TableHeader({ children, className = "" }: TableHeaderProps) {
   return (
     <thead
-      className={`text-xs uppercase text-text-muted bg-surface ${className}`}
+      className={`text-xs text-text-muted bg-surface ${className}`}
     >
       {children}
     </thead>
@@ -107,10 +107,10 @@ export function TableGroupHeader({
   className = "",
 }: TableGroupHeaderProps) {
   return (
-    <tr className={`bg-surface-elevated/30 ${className}`}>
+    <tr className={`bg-surface ${className}`}>
       <td
         colSpan={colSpan}
-        className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted"
+        className="px-4 py-2 text-xs font-semibold tracking-wider text-text-muted"
       >
         {children}
       </td>

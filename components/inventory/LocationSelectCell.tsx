@@ -40,7 +40,7 @@ export function LocationSelectCell({ id, locationId, locations }: LocationSelect
       value={locationId ?? ""}
       onChange={handleChange}
       disabled={isPending}
-      className="w-full max-w-[200px] px-2 py-1.5 text-sm
+      className="w-full max-w-[300px] px-2 py-1.5 text-sm
                  bg-surface border border-border rounded
                  text-foreground
                  focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent

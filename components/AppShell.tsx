@@ -211,7 +211,7 @@ export function AppShell({ children }: AppShellProps) {
         {/* Sidebar backdrop overlay - visible when sidebar is expanded */}
         {!isNavCollapsed && (
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:bg-transparent"
+            className="fixed inset-0 z-40 bg-black/50 lg:bg-transparent"
             onClick={() => setIsNavCollapsed(true)}
             aria-hidden="true"
           />
@@ -224,7 +224,7 @@ export function AppShell({ children }: AppShellProps) {
             fixed left-0 top-14 bottom-0 z-50
             transition-transform duration-100 ease-out
             ${isNavCollapsed 
-              ? "-translate-x-full md:translate-x-0 md:w-16" 
+              ? "-translate-x-full lg:translate-x-0 lg:w-16" 
               : "translate-x-0 w-56 bg-surface border-r border-border"
             }
           `}
@@ -233,7 +233,7 @@ export function AppShell({ children }: AppShellProps) {
         </aside>
 
         {/* Spacer for sidebar on desktop when collapsed - keeps main content positioned correctly */}
-        <div className="hidden md:block shrink-0 w-16 transition-all duration-300" aria-hidden="true" />
+        <div className="hidden lg:block shrink-0 w-16 transition-all duration-300" aria-hidden="true" />
 
         {/* Main content */}
         <main role="main" className="flex-1 overflow-auto p-6">{children}</main>

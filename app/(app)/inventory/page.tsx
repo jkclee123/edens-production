@@ -40,7 +40,7 @@ export default function InventoryPage() {
   // Loading state
   if (locations === undefined || inventory === undefined) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
         </div>
@@ -50,7 +50,7 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
       </div>

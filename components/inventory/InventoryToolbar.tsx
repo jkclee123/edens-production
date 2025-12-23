@@ -5,7 +5,6 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
-import Link from "next/link";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import { useToast, getErrorMessage } from "@/components/ui/Toast";
 
@@ -132,7 +131,6 @@ export function InventoryToolbar({
         aria-label="Filter by location"
       >
         <option value="all">All locations</option>
-        <option value="none">No location</option>
         {locations.map((loc) => (
           <option key={loc._id} value={loc._id}>
             {loc.name}
