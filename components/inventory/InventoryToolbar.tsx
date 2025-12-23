@@ -167,21 +167,19 @@ export function InventoryToolbar({
         ))}
       </select>
 
-      <div className="flex w-full sm:w-auto gap-2">
-
+      <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
         {/* Add Item button */}
-        <Button onClick={handleAddItem} isLoading={isAdding} className="flex-1 sm:flex-none">
+        <Button onClick={handleAddItem} isLoading={isAdding} className="w-full sm:w-auto">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Item
         </Button>
-      </div>
 
         {/* Add Location button */}
         <Button
           onClick={() => setIsLocationDialogOpen(true)}
-          className="flex-1 sm:flex-none"
+          className="w-full sm:w-auto"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -199,6 +197,7 @@ export function InventoryToolbar({
           </svg>
           Add Location
         </Button>
+      </div>
 
       <Dialog
         title="Add New Location"

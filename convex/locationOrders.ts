@@ -150,3 +150,58 @@ export const remove = mutation({
   },
 });
 
+/**
+ * Batch update all location orders for the current user
+ * Takes an array of location IDs in the desired order
+ * The order value will be the index in the array (0-based)
+ */
+export const batchUpdateOrder = mutation({
+  args: {
+    locationIds: v.array(v.id("locations")),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUserForMutation(ctx, args.userEmail);
+    const now = Date.now();
+
+    // Get all existing location orders for this user
+    const existingOrders = await ctx.db
+      .query("locationOrders")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .collect();
+
+    // Create a map of locationId -> existing order doc
+    const existingMap = new Map<string, typeof existingOrders[0]>();
+    for (const order of existingOrders) {
+      existingMap.set(order.locationId, order);
+    }
+
+    // Update or create orders for each location
+    for (let i = 0; i < args.locationIds.length; i++) {
+      const locationId = args.locationIds[i];
+      const order = i; // 0-based order
+
+      const existing = existingMap.get(locationId);
+      if (existing) {
+        // Update existing order
+        await ctx.db.patch(existing._id, {
+          order,
+          updatedAt: now,
+        });
+      } else {
+        // Validate location exists
+        const location = await ctx.db.get(locationId);
+        if (location && location.isActive) {
+          // Create new order
+          await ctx.db.insert("locationOrders", {
+            userId: user._id,
+            locationId,
+            order,
+            updatedAt: now,
+          });
+        }
+      }
+    }
+  },
+});
+

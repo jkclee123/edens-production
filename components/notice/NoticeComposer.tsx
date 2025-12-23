@@ -52,7 +52,7 @@ export function NoticeComposer({ onSuccess }: NoticeComposerProps) {
         placeholder="Write a notice..."
         rows={3}
         className="w-full px-3 py-2 text-sm
-                   bg-surface border border-border rounded-lg
+                   bg-surface-elevated border border-border rounded-lg
                    text-foreground placeholder:text-text-muted
                    focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
                    transition-colors duration-200 resize-y min-h-[80px]"
@@ -70,10 +70,7 @@ export function NoticeComposer({ onSuccess }: NoticeComposerProps) {
           isLoading={isSubmitting}
           disabled={!content.trim()}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-          </svg>
-          Post Notice
+          Post
         </Button>
       </div>
     </form>

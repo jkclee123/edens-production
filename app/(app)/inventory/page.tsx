@@ -36,8 +36,9 @@ export default function InventoryPage() {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">Inventory</h1>
         </div>
+        <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
         <Loading message="Loading inventory..." />
       </div>
     );
@@ -46,8 +47,9 @@ export default function InventoryPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-foreground font-display">Inventory</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">Inventory</h1>
       </div>
+      <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
 
       <InventoryToolbar
         search={search}

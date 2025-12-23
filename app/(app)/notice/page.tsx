@@ -22,14 +22,15 @@ export default function NoticePage() {
   const isEmpty = notices && notices.length === 0;
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-semibold text-foreground font-display">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">
           Notice Board
         </h1>
         <NoticeSearch value={search} onChange={setSearch} />
       </div>
+      <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
 
       {/* Composer */}
       <NoticeComposer />

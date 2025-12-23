@@ -6,8 +6,8 @@
   --color-accent: #5D1EDA;
   --color-accent-hover: #7B3FF2;
   --color-accent-muted: #4A18B0;
-  --color-surface: #1a1a1a;
-  --color-surface-elevated: #2a2a2a;
+  --color-surface: #161616;
+  --color-surface-elevated: #222222;
   --color-border: #2a2a2a;
   --color-text-muted: #a0a0a0;
   --color-text-secondary: #888888;
@@ -81,7 +81,7 @@
   }
 
   .card {
-    @apply bg-surface-elevated border border-border rounded-xl p-4;
+    @apply bg-surface border border-border rounded-xl p-4;
   }
 
   .table-row {
