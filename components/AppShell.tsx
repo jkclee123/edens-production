@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { Nav } from "./Nav";
-import logo from "@/app/icon.png";
+import logo from "@/app/crew.png";
 
 interface AppShellProps {
   children: ReactNode;

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import logo from "@/app/icon.png";
+import logo from "@/app/crew.png";
 
 function LoginContent() {
   const searchParams = useSearchParams();
