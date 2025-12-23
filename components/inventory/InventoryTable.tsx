@@ -65,7 +65,7 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
             <TableHead className="w-[35%] min-w-[100px]">Name</TableHead>
             <TableHead className="w-[20%]">Qty</TableHead>
             <TableHead className="w-[20%] min-w-[120px]">Last Updated</TableHead>
-            <TableHead className="w-[20%] min-w-[140px]">Location</TableHead>
+            <TableHead className="w-[20%] min-w-[150px]">Location</TableHead>
             <TableHead className="w-[10%]">
               <span className="sr-only">Actions</span>
             </TableHead>
