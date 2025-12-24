@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { NoticeComposer, NoticeSearch, NoticeCard } from "@/components/notice";
 import { Loading } from "@/components/Loading";
 import { ErrorState } from "@/components/ErrorState";
+import { DailyVerseDivider } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 export default function NoticePage() {
@@ -24,13 +25,13 @@ export default function NoticePage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">
-          告示
-        </h1>
-        <NoticeSearch value={search} onChange={setSearch} />
-      </div>
-      <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
+      <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">
+        告示
+      </h1>
+      
+      <DailyVerseDivider />
+
+      <NoticeSearch value={search} onChange={setSearch} />
 
       {/* Composer */}
       <NoticeComposer />

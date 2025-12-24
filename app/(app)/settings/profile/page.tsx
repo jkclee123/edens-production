@@ -5,8 +5,7 @@ import { useSession } from "next-auth/react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Loading } from "@/components/Loading";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { Input, Button, DailyVerseDivider } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 export default function ProfilePage() {
@@ -98,11 +97,11 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="mb-8">
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">帳戶</h1>
       </div>
-      <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
+      <DailyVerseDivider />
 
       <div className="bg-surface-elevated border border-border rounded-lg p-6">
         <div className="space-y-6">

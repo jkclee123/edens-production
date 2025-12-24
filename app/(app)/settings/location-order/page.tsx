@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Loading } from "@/components/Loading";
 import { ErrorState } from "@/components/ErrorState";
 import { DraggableLocationList } from "@/components/locationOrder";
+import { DailyVerseDivider } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 export default function LocationOrderSettingsPage() {
@@ -27,7 +28,7 @@ export default function LocationOrderSettingsPage() {
           位置排序
         </h1>
       </div>
-      <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
+      <DailyVerseDivider />
 
       {/* Main content */}
       <DraggableLocationList locations={locationsWithOrders} />

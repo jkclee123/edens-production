@@ -19,4 +19,5 @@ export {
   type Toast,
   type ToastType,
 } from "./Toast";
+export { DailyVerseDivider } from "./DailyVerseDivider";
 

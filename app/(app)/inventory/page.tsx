@@ -7,6 +7,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Loading } from "@/components/Loading";
 import { InventoryToolbar } from "@/components/inventory/InventoryToolbar";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
+import { DailyVerseDivider } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
 export default function InventoryPage() {
@@ -38,7 +39,7 @@ export default function InventoryPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">庫存</h1>
         </div>
-        <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
+        <DailyVerseDivider />
         <Loading message="載入庫存..." />
       </div>
     );
@@ -49,7 +50,7 @@ export default function InventoryPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">庫存</h1>
       </div>
-      <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
+      <DailyVerseDivider />
 
       <InventoryToolbar
         search={search}

@@ -62,7 +62,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex h-screen flex-col bg-background pt-safe">
       {/* Top Bar */}
-      <header role="banner" className="flex h-14 shrink-0 items-center justify-between px-4">
+      <header role="banner" className="relative z-[60] flex h-14 shrink-0 items-center justify-between px-4">
         {/* Left: Menu toggle */}
         <button
           onClick={() => setIsNavCollapsed(!isNavCollapsed)}
@@ -82,7 +82,7 @@ export function AppShell({ children }: AppShellProps) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
+              d={isNavCollapsed ? "M4 6h16M4 12h16M4 18h16" : "M6 18L18 6M6 6l12 12"}
             />
           </svg>
         </button>
@@ -252,7 +252,7 @@ export function AppShell({ children }: AppShellProps) {
           id="main-navigation"
           className={`
             fixed left-0 top-[calc(3.5rem+env(safe-area-inset-top))] bottom-0 z-50
-            transition-transform duration-100 ease-out
+            transition-transform duration-200 ease-out
             ${isNavCollapsed 
               ? "-translate-x-full lg:translate-x-0 lg:w-16" 
               : "translate-x-0 w-56 bg-surface border-r border-border"

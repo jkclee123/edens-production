@@ -70,5 +70,13 @@ export default defineSchema({
       searchField: "content",
       filterFields: ["isActive"],
     }),
+
+  // Daily Bible verse (single record, overwritten daily)
+  dailyVerse: defineTable({
+    date: v.string(), // YYYY-MM-DD format
+    text: v.string(), // verse text in Chinese
+    reference: v.string(), // e.g. "約翰福音 3:16"
+    updatedAt: v.number(),
+  }).index("by_date", ["date"]),
 });
 

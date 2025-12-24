@@ -37,7 +37,7 @@ export function NoticeSearch({
   }, [onChange]);
 
   return (
-    <div className="relative flex-1 w-full sm:max-w-sm">
+    <div className="relative flex-1 w-full sm:max-w-sm ml-auto">
       <svg
         className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"
         fill="none"
