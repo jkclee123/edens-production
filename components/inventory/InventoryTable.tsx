@@ -56,7 +56,7 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
             </svg>
           </div>
           <div>
-            <p className="text-foreground font-medium">No inventory items</p>
+            <p className="text-foreground font-medium">無嘢</p>
           </div>
         </div>
       </div>

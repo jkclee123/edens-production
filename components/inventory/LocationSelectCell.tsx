@@ -51,7 +51,7 @@ export function LocationSelectCell({ id, locationId, locations }: LocationSelect
                  bg-[length:0.6em] bg-[right_0.5rem_center] bg-no-repeat pr-7"
       aria-label="Select location"
     >
-      <option value="">No location</option>
+      <option value="">黑洞</option>
       {locations.map((loc) => (
         <option key={loc._id} value={loc._id}>
           {loc.name}
