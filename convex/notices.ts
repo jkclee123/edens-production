@@ -74,7 +74,7 @@ export const list = query({
     // Helper to get current display name for a notice
     const getCurrentName = (notice: Doc<"notices">): string => {
       const normalized = normalizeEmail(notice.createdByEmail);
-      return currentNameMap.get(normalized) ?? notice.createdByName;
+      return currentNameMap.get(normalized) ?? "";
     };
 
     // Return notices with canEdit flag and current display name
@@ -149,7 +149,6 @@ export const create = mutation({
       createdAt: now,
       updatedAt: now,
       createdByUserId: user._id,
-      createdByName: user.name,
       createdByEmail: user.email,
     });
 

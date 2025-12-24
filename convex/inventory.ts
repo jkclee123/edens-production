@@ -138,7 +138,7 @@ export const list = query({
     // Helper to get current display name for an item
     const getCurrentName = (item: Doc<"inventory">): string => {
       const normalized = normalizeEmail(item.updatedByEmail);
-      return currentNameMap.get(normalized) ?? item.updatedByName;
+      return currentNameMap.get(normalized) ?? "";
     };
 
     // Type for items with current display name
@@ -244,7 +244,6 @@ export const create = mutation({
       isActive: true,
       updatedAt: now,
       updatedByUserId: user._id,
-      updatedByName: user.name,
       updatedByEmail: user.email,
     });
   },
@@ -271,7 +270,6 @@ export const updateName = mutation({
       name: args.name,
       updatedAt: Date.now(),
       updatedByUserId: user._id,
-      updatedByName: user.name,
       updatedByEmail: user.email,
     });
   },
@@ -302,7 +300,6 @@ export const updateQty = mutation({
       qty: args.qty,
       updatedAt: Date.now(),
       updatedByUserId: user._id,
-      updatedByName: user.name,
       updatedByEmail: user.email,
     });
   },
@@ -337,7 +334,6 @@ export const updateLocation = mutation({
       locationId: args.locationId,
       updatedAt: Date.now(),
       updatedByUserId: user._id,
-      updatedByName: user.name,
       updatedByEmail: user.email,
     });
   },
@@ -368,7 +364,6 @@ export const remove = mutation({
       isActive: false,
       updatedAt: Date.now(),
       updatedByUserId: user._id,
-      updatedByName: user.name,
       updatedByEmail: user.email,
     });
   },
