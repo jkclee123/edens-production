@@ -1,6 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { normalizeEmail, requireAuthorizedUser } from "./_auth";
+import { normalizeEmail, requireAuthorizedUser, requireUserForMutation } from "./_auth";
 
 /**
  * Upsert user profile
@@ -28,7 +28,8 @@ export const upsert = mutation({
       // Update
       await ctx.db.patch(existing._id, {
         lastSeenAt: now,
-        name: args.name || existing.name,
+        // Don't overwrite manually edited name with Google name
+        name: existing.name || args.name,
         imageUrl: args.imageUrl ?? existing.imageUrl,
       });
       return existing._id;
@@ -47,13 +48,47 @@ export const upsert = mutation({
 });
 
 /**
+ * Update user display name
+ */
+export const updateName = mutation({
+  args: {
+    name: v.string(),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUserForMutation(ctx, args.userEmail);
+    const trimmedName = args.name.trim();
+    
+    if (!trimmedName) {
+      throw new Error("Name cannot be empty");
+    }
+
+    await ctx.db.patch(user._id, {
+      name: trimmedName,
+    });
+  },
+});
+
+/**
  * Get current user profile
  */
 export const getCurrent = query({
-  args: {},
-  handler: async (ctx) => {
-    const { user } = await requireAuthorizedUser(ctx);
-    return user;
+  args: {
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const authResult = await requireAuthorizedUser(ctx);
+    if (authResult.user) return authResult.user;
+
+    if (args.userEmail) {
+      const normalized = normalizeEmail(args.userEmail);
+      return await ctx.db
+        .query("users")
+        .withIndex("by_normalizedEmail", (q) => q.eq("normalizedEmail", normalized))
+        .first();
+    }
+
+    return null;
   },
 });
 
@@ -67,5 +102,6 @@ export const getById = query({
     return await ctx.db.get(args.id);
   },
 });
+
 
 

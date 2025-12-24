@@ -90,7 +90,7 @@ export function EditableNameCell({ id, name }: EditableNameCellProps) {
                  transition-colors duration-150 cursor-text"
       aria-label={`Edit name: ${name || "(empty)"}`}
     >
-      {name || <span className="text-text-muted italic">Click to add name...</span>}
+      {name || <span className="text-text-muted italic">點擊新增名稱...</span>}
     </button>
   );
 }

@@ -12,11 +12,11 @@ export default function LocationOrderSettingsPage() {
   const locationsWithOrders = useQuery(api.locationOrders.listWithOrders, { userEmail });
 
   if (locationsWithOrders === undefined) {
-    return <Loading message="Loading location order settings..." />;
+    return <Loading message="載入位置排序..." />;
   }
 
   if (locationsWithOrders === null) {
-    return <ErrorState message="Failed to load location order settings" />;
+    return <ErrorState message="你個嘢壞左呀！" />;
   }
 
   return (
@@ -24,7 +24,7 @@ export default function LocationOrderSettingsPage() {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">
-          Location Order Settings
+          位置排序
         </h1>
       </div>
       <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />

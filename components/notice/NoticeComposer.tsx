@@ -49,7 +49,7 @@ export function NoticeComposer({ onSuccess }: NoticeComposerProps) {
           setContent(e.target.value);
           if (error) setError(null);
         }}
-        placeholder="Write a notice..."
+        placeholder="輸入告示..."
         rows={3}
         className="w-full px-3 py-2 text-sm
                    bg-surface-elevated border border-border rounded-lg
@@ -70,7 +70,7 @@ export function NoticeComposer({ onSuccess }: NoticeComposerProps) {
           isLoading={isSubmitting}
           disabled={!content.trim()}
         >
-          Post
+          發佈
         </Button>
       </div>
     </form>

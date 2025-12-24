@@ -198,15 +198,6 @@ export function DraggableLocationList({ locations }: DraggableLocationListProps)
       {/* Action bar */}
       <div className="flex items-end justify-end">
         <div className="flex gap-3">
-          <Button
-            variant="primary"
-            size="md"
-            onClick={handleSaveOrder}
-            disabled={!hasChanges}
-            isLoading={isSaving}
-          >
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
           {hasChanges && (
             <Button
               variant="ghost"
@@ -214,9 +205,18 @@ export function DraggableLocationList({ locations }: DraggableLocationListProps)
               onClick={handleReset}
               disabled={isSaving}
             >
-              Reset
+              重置
             </Button>
           )}
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleSaveOrder}
+            disabled={!hasChanges}
+            isLoading={isSaving}
+          >
+            {isSaving ? "儲存中..." : "儲存"}
+          </Button>
         </div>
       </div>
 
@@ -259,7 +259,7 @@ export function DraggableLocationList({ locations }: DraggableLocationListProps)
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">No locations yet</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">未有位置</h3>
         </div>
       )}
     </div>

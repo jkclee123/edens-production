@@ -55,13 +55,13 @@ export function NoticeSearch({
         type="text"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        placeholder="Search notices..."
+        placeholder="搜尋..."
         className="w-full pl-9 pr-8 py-2 text-sm
                    bg-surface border border-border rounded-lg
                    text-foreground placeholder:text-text-muted
                    focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
                    transition-colors duration-200"
-        aria-label="Search notices"
+        aria-label="搜尋告示"
       />
       {localValue && (
         <button
@@ -70,7 +70,7 @@ export function NoticeSearch({
           className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded
                      text-text-muted hover:text-foreground
                      focus:outline-none focus:ring-1 focus:ring-accent"
-          aria-label="Clear search"
+          aria-label="清空搜尋"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path

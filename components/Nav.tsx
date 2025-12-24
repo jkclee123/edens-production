@@ -12,7 +12,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     href: "/inventory",
-    label: "Inventory",
+    label: "庫存",
     icon: (
       <svg
         className="h-5 w-5"
@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
   },
   {
     href: "/notice",
-    label: "Notice Board",
+    label: "告示",
     icon: (
       <svg
         className="h-5 w-5"
@@ -67,7 +67,7 @@ const navItems: NavItem[] = [
   },
   {
     href: "/todo",
-    label: "Todo List",
+    label: "待辦事項",
     icon: (
       <svg
         className="h-5 w-5"

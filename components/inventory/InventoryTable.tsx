@@ -14,10 +14,16 @@ import { EditableNameCell } from "./EditableNameCell";
 import { QtyStepper } from "./QtyStepper";
 import { LocationSelectCell } from "./LocationSelectCell";
 import { DeleteInventoryButton } from "./DeleteInventoryButton";
+import { formatRelativeTime } from "@/lib/time";
+
+// Item type with current display name from backend
+type InventoryItemWithCurrentName = Doc<"inventory"> & {
+  updatedByCurrentName: string;
+};
 
 interface InventoryGroup {
   location: Doc<"locations"> | null;
-  items: Doc<"inventory">[];
+  items: InventoryItemWithCurrentName[];
 }
 
 interface InventoryTableProps {
@@ -62,12 +68,12 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
       <Table>
         <TableHeader>
           <TableRow className="bg-surface hover:bg-transparent">
-            <TableHead className="w-[35%] min-w-[100px]">Name</TableHead>
-            <TableHead className="w-[20%]">Qty</TableHead>
-            <TableHead className="w-[20%] min-w-[120px]">Last Updated</TableHead>
-            <TableHead className="w-[20%] min-w-[150px]">Location</TableHead>
+            <TableHead className="w-[35%] min-w-[100px]">名稱</TableHead>
+            <TableHead className="w-[20%]">數量</TableHead>
+            <TableHead className="w-[20%] min-w-[120px]">最後更新</TableHead>
+            <TableHead className="w-[20%] min-w-[150px]">位置</TableHead>
             <TableHead className="w-[10%]">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only"></span>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -91,17 +97,7 @@ interface InventoryGroupRowsProps {
 }
 
 function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
-  const groupName = group.location?.name ?? "No location";
-
-  const formatDateTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+  const groupName = group.location?.name ?? "未有位置";
 
   return (
     <>
@@ -120,9 +116,14 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
             <QtyStepper id={item._id} qty={item.qty} />
           </TableCell>
           <TableCell>
-            <span className="text-sm text-text-secondary whitespace-nowrap">
-              {formatDateTime(item.updatedAt)}
-            </span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm text-foreground whitespace-nowrap">
+                {formatRelativeTime(item.updatedAt)}
+              </span>
+              <span className="text-xs text-text-muted truncate">
+                {item.updatedByCurrentName}
+              </span>
+            </div>
           </TableCell>
           <TableCell>
             <LocationSelectCell

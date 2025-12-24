@@ -54,9 +54,33 @@ export const list = query({
       }
     }
 
-    // Return notices with canEdit flag
+    // Build a map of normalized email to current display names
+    const uniqueEmails = [...new Set(notices.map((notice) => normalizeEmail(notice.createdByEmail)))];
+    const usersByEmail = await Promise.all(
+      uniqueEmails.map((email) =>
+        ctx.db
+          .query("users")
+          .withIndex("by_normalizedEmail", (q) => q.eq("normalizedEmail", email))
+          .first()
+      )
+    );
+    const currentNameMap = new Map<string, string>();
+    for (const user of usersByEmail) {
+      if (user) {
+        currentNameMap.set(user.normalizedEmail, user.name);
+      }
+    }
+
+    // Helper to get current display name for a notice
+    const getCurrentName = (notice: Doc<"notices">): string => {
+      const normalized = normalizeEmail(notice.createdByEmail);
+      return currentNameMap.get(normalized) ?? notice.createdByName;
+    };
+
+    // Return notices with canEdit flag and current display name
     return notices.map((notice) => ({
       ...notice,
+      createdByCurrentName: getCurrentName(notice),
       canEdit: currentUserId !== null && notice.createdByUserId === currentUserId,
     }));
   },

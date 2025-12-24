@@ -4,7 +4,10 @@ import { useState, useCallback, useEffect, useRef, type ReactNode } from "react"
 import Link from "next/link";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Nav } from "./Nav";
+import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import logo from "@/app/crew.png";
 
 interface AppShellProps {
@@ -17,6 +20,10 @@ export function AppShell({ children }: AppShellProps) {
   const { data: session } = useSession();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Fetch current user from Convex to get the updated display name
+  const userEmail = useUserEmail();
+  const currentUser = useQuery(api.users.getCurrent, { userEmail });
 
   // Close menu on Escape key
   useEffect(() => {
@@ -145,13 +152,36 @@ export function AppShell({ children }: AppShellProps) {
                 {session?.user && (
                   <div className="border-b border-border px-3 py-2 mb-2">
                     <p className="text-sm font-medium text-foreground truncate">
-                      {session.user.name}
+                      {currentUser?.name ?? session.user.name}
                     </p>
                     <p className="text-xs text-text-muted truncate">
                       {session.user.email}
                     </p>
                   </div>
                 )}
+
+                <Link
+                  href="/settings/profile"
+                  role="menuitem"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface transition-colors focus:outline-none focus-visible:bg-surface focus-visible:ring-1 focus-visible:ring-accent"
+                >
+                  <svg
+                    className="h-4 w-4 text-text-muted"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  帳戶
+                </Link>
 
                 <Link
                   href="/settings/location-order"
@@ -173,7 +203,7 @@ export function AppShell({ children }: AppShellProps) {
                       d="M4 6h16M4 10h16M4 14h16M4 18h16"
                     />
                   </svg>
-                  Location Order Settings
+                  位置排序
                 </Link>
 
                 <button
@@ -198,7 +228,7 @@ export function AppShell({ children }: AppShellProps) {
                       d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                     />
                   </svg>
-                  Sign out
+                  登出
                 </button>
               </div>
             </>

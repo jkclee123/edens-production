@@ -114,7 +114,7 @@ export function InventoryToolbar({
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Search items..."
+          placeholder="搜尋..."
           className="w-full pl-9 pr-8 py-2 text-sm
                      bg-surface border border-border rounded-lg
                      text-foreground placeholder:text-text-muted
@@ -159,7 +159,7 @@ export function InventoryToolbar({
                    bg-[length:0.65em] bg-[right_0.75rem_center] bg-no-repeat pr-8"
         aria-label="Filter by location"
       >
-        <option value="all">All locations</option>
+        <option value="all">所有位置</option>
         {locations.map((loc) => (
           <option key={loc._id} value={loc._id}>
             {loc.name}
@@ -173,7 +173,7 @@ export function InventoryToolbar({
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add Item
+          新增項目
         </Button>
 
         {/* Add Location button */}
@@ -195,12 +195,12 @@ export function InventoryToolbar({
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-          Add Location
+          新增位置
         </Button>
       </div>
 
       <Dialog
-        title="Add New Location"
+        title="新增位置"
         isOpen={isLocationDialogOpen}
         onClose={() => setIsLocationDialogOpen(false)}
       >
@@ -208,7 +208,7 @@ export function InventoryToolbar({
           <Input
             value={newLocationName}
             onChange={(e) => setNewLocationName(e.target.value)}
-            placeholder="Location Name"
+            placeholder="位置名稱"
             autoFocus
             required
           />
@@ -218,10 +218,10 @@ export function InventoryToolbar({
               variant="ghost"
               onClick={() => setIsLocationDialogOpen(false)}
             >
-              Cancel
+              取消
             </Button>
             <Button type="submit" isLoading={isAddingLocation} disabled={!newLocationName.trim()}>
-              Add
+              新增
             </Button>
           </div>
         </form>

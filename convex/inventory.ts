@@ -118,12 +118,44 @@ export const list = query({
       });
     }
 
+    // Build a map of normalized email to current display names
+    const uniqueEmails = [...new Set(items.map((item) => normalizeEmail(item.updatedByEmail)))];
+    const usersByEmail = await Promise.all(
+      uniqueEmails.map((email) =>
+        ctx.db
+          .query("users")
+          .withIndex("by_normalizedEmail", (q) => q.eq("normalizedEmail", email))
+          .first()
+      )
+    );
+    const currentNameMap = new Map<string, string>();
+    for (const user of usersByEmail) {
+      if (user) {
+        currentNameMap.set(user.normalizedEmail, user.name);
+      }
+    }
+
+    // Helper to get current display name for an item
+    const getCurrentName = (item: Doc<"inventory">): string => {
+      const normalized = normalizeEmail(item.updatedByEmail);
+      return currentNameMap.get(normalized) ?? item.updatedByName;
+    };
+
+    // Type for items with current display name
+    type ItemWithCurrentName = Doc<"inventory"> & { updatedByCurrentName: string };
+
     // Convert to array and sort per user preferences
-    const result: { location: Doc<"locations"> | null; items: Doc<"inventory">[]; order: number | null }[] = [];
+    const result: { location: Doc<"locations"> | null; items: ItemWithCurrentName[]; order: number | null }[] = [];
 
     // Add "No location" group first (FR-010: always first)
     const noLocationGroup = grouped.get("none")!;
-    result.push(noLocationGroup);
+    result.push({
+      ...noLocationGroup,
+      items: noLocationGroup.items.map((item) => ({
+        ...item,
+        updatedByCurrentName: getCurrentName(item),
+      })),
+    });
 
     // Sort location groups by user preferences (FR-011, FR-012)
     const locationGroups = [...grouped.entries()]
@@ -154,7 +186,14 @@ export const list = query({
 
         // Neither has order: sort by name
         return (a.location?.name ?? "").toLowerCase().localeCompare((b.location?.name ?? "").toLowerCase());
-      });
+      })
+      .map((group) => ({
+        ...group,
+        items: group.items.map((item) => ({
+          ...item,
+          updatedByCurrentName: getCurrentName(item),
+        })),
+      }));
 
     result.push(...locationGroups);
 

@@ -6,8 +6,10 @@ import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
+import { formatRelativeTime } from "@/lib/time";
 
 interface NoticeWithEdit extends Doc<"notices"> {
+  createdByCurrentName: string;
   canEdit: boolean;
 }
 
@@ -37,28 +39,6 @@ export function NoticeCard({ notice }: NoticeCardProps) {
       );
     }
   }, [isEditing]);
-
-  // Format relative time
-  const formatRelativeTime = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 7) {
-      return new Date(timestamp).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: days > 365 ? "numeric" : undefined,
-      });
-    }
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return "Just now";
-  };
 
   const handleStartEdit = useCallback(() => {
     setEditContent(notice.content);
@@ -98,7 +78,7 @@ export function NoticeCard({ notice }: NoticeCardProps) {
   }, [editContent, notice._id, notice.content, updateNotice, userEmail]);
 
   const handleDelete = useCallback(async () => {
-    if (!window.confirm("Are you sure you want to delete this notice? This action cannot be undone.")) {
+    if (!window.confirm("真係要刪除呢個告示？")) {
       return;
     }
 
@@ -130,12 +110,12 @@ export function NoticeCard({ notice }: NoticeCardProps) {
           {/* Avatar placeholder */}
           <div className="w-8 h-8 rounded-full bg-accent/40 flex items-center justify-center flex-shrink-0">
             <span className="text-xs font-medium text-foreground">
-              {notice.createdByName.charAt(0).toUpperCase()}
+              {notice.createdByCurrentName.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {notice.createdByName}
+              {notice.createdByCurrentName}
             </p>
             <p className="text-xs text-text-muted">
               {formatRelativeTime(notice.createdAt)}
@@ -179,7 +159,7 @@ export function NoticeCard({ notice }: NoticeCardProps) {
               setEditContent(e.target.value);
               if (error) setError(null);
             }}
-            rows={10}
+            rows={5}
             className="w-full px-3 py-2 text-sm
                        bg-surface border border-border rounded-lg
                        text-foreground placeholder:text-text-muted
@@ -201,7 +181,7 @@ export function NoticeCard({ notice }: NoticeCardProps) {
               onClick={handleCancelEdit}
               disabled={isUpdating}
             >
-              Cancel
+              取消
             </Button>
             <Button
               type="button"
@@ -210,12 +190,9 @@ export function NoticeCard({ notice }: NoticeCardProps) {
               isLoading={isUpdating}
               disabled={!editContent.trim()}
             >
-              Save
+              儲存
             </Button>
           </div>
-          <p className="text-xs text-text-secondary">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-surface text-text-muted">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-surface text-text-muted">Enter</kbd> to save, <kbd className="px-1.5 py-0.5 rounded bg-surface text-text-muted">Esc</kbd> to cancel
-          </p>
         </div>
       ) : (
         <div className="space-y-2">

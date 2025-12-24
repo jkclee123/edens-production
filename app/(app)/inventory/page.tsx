@@ -36,10 +36,10 @@ export default function InventoryPage() {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">Inventory</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">庫存</h1>
         </div>
         <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
-        <Loading message="Loading inventory..." />
+        <Loading message="載入庫存..." />
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default function InventoryPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">Inventory</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">庫存</h1>
       </div>
       <div className="h-px bg-gradient-to-r from-accent via-accent/50 to-transparent" />
 
@@ -61,7 +61,7 @@ export default function InventoryPage() {
 
       {inventory === undefined ? (
         <div className="flex justify-center py-12">
-          <Loading message="Updating search results..." />
+          <Loading message="更新搜尋結果..." />
         </div>
       ) : (
         <InventoryTable

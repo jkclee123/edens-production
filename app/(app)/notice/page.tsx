@@ -26,7 +26,7 @@ export default function NoticePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground font-display tracking-tight">
-          Notice Board
+          告示
         </h1>
         <NoticeSearch value={search} onChange={setSearch} />
       </div>
@@ -37,7 +37,7 @@ export default function NoticePage() {
 
       {/* Notices list */}
       <div className="space-y-4">
-        {isLoading && <Loading message="Loading notices..." />}
+        {isLoading && <Loading message="載入告示..." />}
         
         {hasError && (
           <ErrorState 
@@ -83,13 +83,13 @@ export default function NoticePage() {
               />
             </svg>
             <p className="text-text-muted">
-              No notices found matching &ldquo;{search}&rdquo;
+              無符合搜尋條件的告示
             </p>
             <button 
               onClick={() => setSearch("")}
               className="mt-2 text-sm text-accent hover:text-accent-hover transition-colors"
             >
-              Clear search
+              清空搜尋
             </button>
           </div>
         )}

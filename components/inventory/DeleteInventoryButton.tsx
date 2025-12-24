@@ -17,7 +17,7 @@ export function DeleteInventoryButton({ id, name }: DeleteInventoryButtonProps) 
   const userEmail = useUserEmail();
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) {
+    if (!window.confirm(`真係要刪除 "${name}"？`)) {
       return;
     }
 
