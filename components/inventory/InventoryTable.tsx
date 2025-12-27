@@ -103,8 +103,7 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
     <>
       <TableGroupHeader colSpan={5}>
         <div className="flex items-center gap-2">
-          <span>{groupName}</span>
-          <span className="text-text-secondary">({group.items.length})</span>
+          <span className="text-sm text-brand-green/70">{groupName}</span>
         </div>
       </TableGroupHeader>
       {group.items.map((item) => (

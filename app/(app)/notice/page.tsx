@@ -63,7 +63,7 @@ export default function NoticePage() {
               />
             </svg>
             <p className="text-text-muted">
-              No notices yet. Be the first to post!
+              未有告示
             </p>
           </div>
         )}
