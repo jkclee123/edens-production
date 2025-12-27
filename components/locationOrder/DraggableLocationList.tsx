@@ -196,7 +196,10 @@ export function DraggableLocationList({ locations }: DraggableLocationListProps)
   return (
     <div className="space-y-6">
       {/* Action bar */}
-      <div className="flex items-end justify-end">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-text-muted">
+          <p>個人設定，並不會影響其他用家</p>
+        </div>
         <div className="flex gap-3">
           {hasChanges && (
             <Button

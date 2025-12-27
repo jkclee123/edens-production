@@ -6,17 +6,17 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 
-interface EditableNameCellProps {
-  id: Id<"inventory">;
+interface EditableLocationCellProps {
+  id: Id<"locations">;
   name: string;
 }
 
-export function EditableNameCell({ id, name }: EditableNameCellProps) {
+export function EditableLocationCell({ id, name }: EditableLocationCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(name);
   const [isPending, setIsPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const updateName = useMutation(api.inventory.updateName);
+  const updateLocation = useMutation(api.locations.update);
   const userEmail = useUserEmail();
 
   // Sync local value with prop when not editing
@@ -40,13 +40,20 @@ export function EditableNameCell({ id, name }: EditableNameCellProps) {
       return;
     }
 
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setValue(name);
+      setIsEditing(false);
+      return;
+    }
+
     setIsPending(true);
     try {
-      await updateName({ id, name: value, userEmail });
+      await updateLocation({ id, name: trimmed, userEmail });
     } catch (error) {
       // Revert on error
       setValue(name);
-      console.error("Failed to update name:", error);
+      console.error("Failed to update location name:", error);
     } finally {
       setIsPending(false);
       setIsEditing(false);
@@ -72,12 +79,12 @@ export function EditableNameCell({ id, name }: EditableNameCellProps) {
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         disabled={isPending}
-        placeholder="輸入名稱..."
+        placeholder="輸入位置名稱..."
         className="w-full px-2 py-1 text-sm bg-surface border border-accent rounded 
                    text-foreground placeholder:text-text-muted
                    focus:outline-none focus:ring-1 focus:ring-accent
                    disabled:opacity-50"
-        aria-label="Item name"
+        aria-label="Location name"
       />
     );
   }
@@ -88,9 +95,9 @@ export function EditableNameCell({ id, name }: EditableNameCellProps) {
       className="w-full text-left px-2 py-1 -mx-2 -my-1 rounded
                  hover:bg-surface-elevated focus:outline-none focus:ring-1 focus:ring-accent
                  transition-colors duration-150 cursor-text"
-      aria-label={`Edit name: ${name || "(empty)"}`}
+      aria-label={`Edit location: ${name}`}
     >
-      {name || <span className="text-text-muted italic">點擊輸入名稱...</span>}
+      {name}
     </button>
   );
 }

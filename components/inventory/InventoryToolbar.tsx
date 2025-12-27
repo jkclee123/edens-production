@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
-import { Dialog, Input } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import { useToast, getErrorMessage } from "@/components/ui/Toast";
 
@@ -27,12 +27,9 @@ export function InventoryToolbar({
   locations,
 }: InventoryToolbarProps) {
   const [isAdding, setIsAdding] = useState(false);
-  const [isAddingLocation, setIsAddingLocation] = useState(false);
-  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
-  const [newLocationName, setNewLocationName] = useState("");
   const [localSearch, setLocalSearch] = useState(search);
+  const router = useRouter();
   const createItem = useMutation(api.inventory.create);
-  const createLocation = useMutation(api.locations.create);
   const userEmail = useUserEmail();
   const { error: showError } = useToast();
 
@@ -61,23 +58,6 @@ export function InventoryToolbar({
       showError(getErrorMessage(error));
     } finally {
       setIsAdding(false);
-    }
-  };
-
-  const handleCreateLocation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const name = newLocationName.trim();
-    if (!name) return;
-
-    setIsAddingLocation(true);
-    try {
-      await createLocation({ name, userEmail });
-      setNewLocationName("");
-      setIsLocationDialogOpen(false);
-    } catch (error) {
-      showError(getErrorMessage(error));
-    } finally {
-      setIsAddingLocation(false);
     }
   };
 
@@ -176,9 +156,9 @@ export function InventoryToolbar({
           新增項目
         </Button>
 
-        {/* Add Location button */}
+        {/* Location Settings button */}
         <Button
-          onClick={() => setIsLocationDialogOpen(true)}
+          onClick={() => router.push("/settings/locations")}
           className="w-full sm:w-auto"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,37 +175,9 @@ export function InventoryToolbar({
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-          新增位置
+          位置設定
         </Button>
       </div>
-
-      <Dialog
-        title="新增位置"
-        isOpen={isLocationDialogOpen}
-        onClose={() => setIsLocationDialogOpen(false)}
-      >
-        <form onSubmit={handleCreateLocation} className="space-y-4">
-          <Input
-            value={newLocationName}
-            onChange={(e) => setNewLocationName(e.target.value)}
-            placeholder="位置名稱"
-            autoFocus
-            required
-          />
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setIsLocationDialogOpen(false)}
-            >
-              取消
-            </Button>
-            <Button type="submit" isLoading={isAddingLocation} disabled={!newLocationName.trim()}>
-              新增
-            </Button>
-          </div>
-        </form>
-      </Dialog>
     </div>
   );
 }
