@@ -139,6 +139,14 @@ export const saveVerse = internalMutation({
   },
 });
 
+
+function stripOuterQuotes(text: string): string {
+  let result = text.trim();
+  // Replace inner dialogue quotes with secondary quotes to avoid conflict with UI wrapper
+  result = result.replaceAll("「", "『").replaceAll("」", "』");
+  return result.trim();
+}
+
 /**
  * Parse verse reference like "John 3:16" or "1 Corinthians 13:4-7"
  */
@@ -201,7 +209,6 @@ export const refreshVerse = action({
       
       // Step 3: Fetch Chinese translation from HelloAO API
       const chineseApiUrl = `https://bible.helloao.org/api/cmn_cuv/${parsed.book}/${parsed.chapter}.json`;
-      console.log(`Fetching Chinese Bible from: ${chineseApiUrl}`);
       
       const chineseResponse = await fetch(chineseApiUrl);
       
@@ -239,7 +246,7 @@ export const refreshVerse = action({
           }
         }
         
-        verseText = verseTexts.join(" ");
+        verseText = stripOuterQuotes(verseTexts.join(" "));
         const chineseBook = CHINESE_BOOK_NAMES[parsed.book] || reference.split(" ")[0];
         const verseRange = parsed.verses.length > 1 
           ? `${parsed.verses[0]}-${parsed.verses[parsed.verses.length - 1]}`
@@ -248,14 +255,12 @@ export const refreshVerse = action({
         
         // If Chinese text extraction failed, fall back entirely to English
         if (!verseText) {
-          console.warn(`Chinese verse extraction failed for ${parsed.book} ${parsed.chapter}:${parsed.verses.join(",")}, falling back to English`);
           verseText = mannaData.verse?.details?.text || "";
           chineseReference = reference.trim();
           usedFallback = true;
         }
       } else {
         // Fallback to English if Chinese API fails
-        console.warn(`Chinese API failed with status ${chineseResponse.status}, falling back to English`);
         verseText = mannaData.verse?.details?.text || "";
         chineseReference = reference.trim();
         usedFallback = true;
@@ -268,11 +273,8 @@ export const refreshVerse = action({
         reference: chineseReference,
       });
       
-      console.log(`Daily verse saved: ${chineseReference} (fallback: ${usedFallback})`);
-      
       return { success: true, fallback: usedFallback };
     } catch (error) {
-      console.error("Error refreshing daily verse:", error);
       throw error;
     }
   },
