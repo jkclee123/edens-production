@@ -144,7 +144,7 @@ export const saveVerse = internalMutation({
  */
 function parseReference(reference: string): { book: string; chapter: number; verses: number[] } | null {
   // Handle formats like "John 3:16", "1 Corinthians 13:4-7", "Psalm 23:1"
-  const match = reference.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
+  const match = reference.trim().match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
   if (!match) return null;
   
   const bookName = match[1].toLowerCase().trim();
@@ -200,12 +200,14 @@ export const refreshVerse = action({
       }
       
       // Step 3: Fetch Chinese translation from HelloAO API
-      const chineseResponse = await fetch(
-        `https://bible.helloao.org/api/cmn_cuv/${parsed.book}/${parsed.chapter}.json`
-      );
+      const chineseApiUrl = `https://bible.helloao.org/api/cmn_cuv/${parsed.book}/${parsed.chapter}.json`;
+      console.log(`Fetching Chinese Bible from: ${chineseApiUrl}`);
       
-      let verseText: string;
+      const chineseResponse = await fetch(chineseApiUrl);
+      
+      let verseText: string = "";
       let chineseReference: string;
+      let usedFallback = false;
       
       if (chineseResponse.ok) {
         const chineseData = await chineseResponse.json();
@@ -222,9 +224,12 @@ export const refreshVerse = action({
                 verseTexts.push(item.content);
               } else if (Array.isArray(item.content)) {
                 const text = item.content
-                  .map((c: any) => {
+                  .map((c: unknown) => {
                     if (typeof c === "string") return c;
-                    return c?.text || "";
+                    if (c && typeof c === "object" && "text" in c) {
+                      return (c as { text: string }).text || "";
+                    }
+                    return "";
                   })
                   .join("");
                 verseTexts.push(text);
@@ -240,20 +245,32 @@ export const refreshVerse = action({
           ? `${parsed.verses[0]}-${parsed.verses[parsed.verses.length - 1]}`
           : `${parsed.verses[0]}`;
         chineseReference = `${chineseBook} ${parsed.chapter}:${verseRange}`;
+        
+        // If Chinese text extraction failed, fall back entirely to English
+        if (!verseText) {
+          console.warn(`Chinese verse extraction failed for ${parsed.book} ${parsed.chapter}:${parsed.verses.join(",")}, falling back to English`);
+          verseText = mannaData.verse?.details?.text || "";
+          chineseReference = reference.trim();
+          usedFallback = true;
+        }
       } else {
         // Fallback to English if Chinese API fails
+        console.warn(`Chinese API failed with status ${chineseResponse.status}, falling back to English`);
         verseText = mannaData.verse?.details?.text || "";
-        chineseReference = reference;
+        chineseReference = reference.trim();
+        usedFallback = true;
       }
       
       // Step 4: Save to database
       await ctx.runMutation(internal.dailyVerse.saveVerse, {
         date: today,
-        text: verseText || mannaData.verse?.details?.text || "",
+        text: verseText,
         reference: chineseReference,
       });
       
-      return { success: true };
+      console.log(`Daily verse saved: ${chineseReference} (fallback: ${usedFallback})`);
+      
+      return { success: true, fallback: usedFallback };
     } catch (error) {
       console.error("Error refreshing daily verse:", error);
       throw error;
