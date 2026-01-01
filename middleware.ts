@@ -4,8 +4,15 @@ import { auth } from "@/auth";
 // Routes that don't require authentication
 const publicRoutes = ["/login", "/unauthorized", "/api/auth"];
 
+// TEMPORARY: Bypass auth for localhost testing
+const BYPASS_AUTH_FOR_TESTING = process.env.BYPASS_AUTH_FOR_TESTING || false;
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
+
+  if (BYPASS_AUTH_FOR_TESTING) {
+    return NextResponse.next();
+  }
 
   // Allow public routes
   if (publicRoutes.some((route) => pathname.startsWith(route))) {
