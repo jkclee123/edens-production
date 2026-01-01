@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
 // Routes that don't require authentication
-const publicRoutes = ["/login", "/unauthorized", "/api/auth"];
+const publicRoutes = ["/login", "/unauthorized", "/api/auth", "/offline"];
 
 // TEMPORARY: Bypass auth for localhost testing
-const BYPASS_AUTH_FOR_TESTING = process.env.BYPASS_AUTH_FOR_TESTING || false;
+const BYPASS_AUTH_FOR_TESTING = process.env.BYPASS_AUTH_FOR_TESTING === "true";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
+  console.log("BYPASS_AUTH_FOR_TESTING", BYPASS_AUTH_FOR_TESTING);
   if (BYPASS_AUTH_FOR_TESTING) {
     return NextResponse.next();
   }
