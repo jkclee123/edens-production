@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
 // Routes that don't require authentication
-const publicRoutes = ["/login", "/unauthorized", "/api/auth", "/offline"];
+const publicRoutes = ["/login", "/unauthorized", "/api/auth", "/offline", "/guest"];
 
 // TEMPORARY: Bypass auth for localhost testing
 const BYPASS_AUTH_FOR_TESTING = process.env.BYPASS_AUTH_FOR_TESTING === "true";
