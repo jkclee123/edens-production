@@ -30,9 +30,11 @@ interface InventoryTableProps {
   groups: InventoryGroup[];
   locations: Doc<"locations">[];
   totalCount: number;
+  hideQty?: boolean;
+  readOnly?: boolean;
 }
 
-export function InventoryTable({ groups, locations, totalCount }: InventoryTableProps) {
+export function InventoryTable({ groups, locations, totalCount, hideQty, readOnly }: InventoryTableProps) {
   // Filter out empty groups for display (except when filtering)
   const nonEmptyGroups = groups.filter((g) => g.items.length > 0);
 
@@ -63,18 +65,22 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
     );
   }
 
+  const colSpan = 5 - (hideQty ? 1 : 0) - (readOnly ? 1 : 0);
+
   return (
     <div className="card p-0 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-surface hover:bg-transparent">
             <TableHead className="w-[35%] min-w-[100px]">名稱</TableHead>
-            <TableHead className="w-[20%]">數量</TableHead>
+            {!hideQty && <TableHead className="w-[20%]">數量</TableHead>}
             <TableHead className="w-[20%] min-w-[120px]">最後更新</TableHead>
             <TableHead className="w-[20%] min-w-[150px]">位置</TableHead>
-            <TableHead className="w-[10%]">
-              <span className="sr-only"></span>
-            </TableHead>
+            {!readOnly && (
+              <TableHead className="w-[10%]">
+                <span className="sr-only"></span>
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -83,6 +89,9 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
               key={group.location?._id ?? "none"}
               group={group}
               locations={locations}
+              hideQty={hideQty}
+              readOnly={readOnly}
+              colSpan={colSpan}
             />
           ))}
         </TableBody>
@@ -94,14 +103,17 @@ export function InventoryTable({ groups, locations, totalCount }: InventoryTable
 interface InventoryGroupRowsProps {
   group: InventoryGroup;
   locations: Doc<"locations">[];
+  hideQty?: boolean;
+  readOnly?: boolean;
+  colSpan: number;
 }
 
-function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
+function InventoryGroupRows({ group, locations, hideQty, readOnly, colSpan }: InventoryGroupRowsProps) {
   const groupName = group.location?.name ?? "未有位置";
 
   return (
     <>
-      <TableGroupHeader colSpan={5}>
+      <TableGroupHeader colSpan={colSpan}>
         <div className="flex items-center gap-2">
           <span className="text-sm text-brand-green/70">{groupName}</span>
         </div>
@@ -109,11 +121,17 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
       {group.items.map((item) => (
         <TableRow className="bg-surface-elevated" key={item._id}>
           <TableCell>
-            <EditableNameCell id={item._id} name={item.name} />
+            {readOnly ? (
+              <span className="text-sm text-foreground">{item.name}</span>
+            ) : (
+              <EditableNameCell id={item._id} name={item.name} />
+            )}
           </TableCell>
-          <TableCell>
-            <QtyStepper id={item._id} qty={item.qty} />
-          </TableCell>
+          {!hideQty && (
+            <TableCell>
+              <QtyStepper id={item._id} qty={item.qty} />
+            </TableCell>
+          )}
           <TableCell>
             <div className="flex flex-col min-w-0">
               <span className="text-sm text-foreground whitespace-nowrap">
@@ -125,15 +143,21 @@ function InventoryGroupRows({ group, locations }: InventoryGroupRowsProps) {
             </div>
           </TableCell>
           <TableCell>
-            <LocationSelectCell
-              id={item._id}
-              locationId={item.locationId}
-              locations={locations}
-            />
+            {readOnly ? (
+              <span className="text-sm text-foreground">{locations.find((l) => l._id === item.locationId)?.name ?? ""}</span>
+            ) : (
+              <LocationSelectCell
+                id={item._id}
+                locationId={item.locationId}
+                locations={locations}
+              />
+            )}
           </TableCell>
-          <TableCell className="text-right">
-            <DeleteInventoryButton id={item._id} name={item.name} />
-          </TableCell>
+          {!readOnly && (
+            <TableCell className="text-right">
+              <DeleteInventoryButton id={item._id} name={item.name} />
+            </TableCell>
+          )}
         </TableRow>
       ))}
     </>

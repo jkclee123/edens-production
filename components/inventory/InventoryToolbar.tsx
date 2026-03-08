@@ -15,6 +15,7 @@ interface InventoryToolbarProps {
   locationFilter: "all" | "none" | Id<"locations">;
   onLocationFilterChange: (filter: "all" | "none" | Id<"locations">) => void;
   locations: Doc<"locations">[];
+  hideActions?: boolean;
 }
 
 const DEBOUNCE_MS = 500;
@@ -25,6 +26,7 @@ export function InventoryToolbar({
   locationFilter,
   onLocationFilterChange,
   locations,
+  hideActions,
 }: InventoryToolbarProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [localSearch, setLocalSearch] = useState(search);
@@ -147,37 +149,39 @@ export function InventoryToolbar({
         ))}
       </select>
 
-      <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-        {/* Add Item button */}
-        <Button onClick={handleAddItem} isLoading={isAdding} className="w-full sm:w-auto">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          新增項目
-        </Button>
+      {!hideActions && (
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+          {/* Add Item button */}
+          <Button onClick={handleAddItem} isLoading={isAdding} className="w-full sm:w-auto">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            新增項目
+          </Button>
 
-        {/* Location Settings button */}
-        <Button
-          onClick={() => router.push("/settings/locations")}
-          className="w-full sm:w-auto"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-          位置設定
-        </Button>
-      </div>
+          {/* Location Settings button */}
+          <Button
+            onClick={() => router.push("/settings/locations")}
+            className="w-full sm:w-auto"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            位置設定
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

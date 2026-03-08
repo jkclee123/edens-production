@@ -69,6 +69,7 @@ export default function InventoryPage() {
           groups={inventory.groups}
           locations={locations ?? []}
           totalCount={inventory.totalCount}
+          hideQty={true}
         />
       )}
     </div>
