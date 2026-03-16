@@ -75,9 +75,10 @@ export function InventoryToolbar({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
+      <div className="flex flex-row w-full gap-2">
       {/* Search */}
-      <div className="relative flex-1 w-full sm:max-w-xs">
+      <div className="relative w-1/2 min-w-0">
         <svg
           className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"
           fill="none"
@@ -131,7 +132,7 @@ export function InventoryToolbar({
         onChange={(e) =>
           onLocationFilterChange(e.target.value as "all" | "none" | Id<"locations">)
         }
-        className="w-full sm:w-auto px-3 py-2 text-sm
+        className="w-1/2 min-w-0 px-3 py-2 text-sm
                    bg-surface border border-border rounded-lg
                    text-foreground
                    focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
@@ -148,11 +149,12 @@ export function InventoryToolbar({
           </option>
         ))}
       </select>
+      </div>
 
       {!hideActions && (
-        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+        <div className="flex flex-row w-full sm:w-auto gap-2">
           {/* Add Item button */}
-          <Button onClick={handleAddItem} isLoading={isAdding} className="w-full sm:w-auto">
+          <Button onClick={handleAddItem} isLoading={isAdding} className="flex-1">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -162,7 +164,7 @@ export function InventoryToolbar({
           {/* Location Settings button */}
           <Button
             onClick={() => router.push("/settings/locations")}
-            className="w-full sm:w-auto"
+            className="flex-1"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
