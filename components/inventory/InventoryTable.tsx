@@ -14,7 +14,7 @@ import { EditableNameCell } from "./EditableNameCell";
 import { QtyStepper } from "./QtyStepper";
 import { LocationSelectCell } from "./LocationSelectCell";
 import { DeleteInventoryButton } from "./DeleteInventoryButton";
-import { formatRelativeTime } from "@/lib/time";
+import { RemarksInput } from "./RemarksInput";
 
 // Item type with current display name from backend
 type InventoryItemWithCurrentName = Doc<"inventory"> & {
@@ -65,17 +65,16 @@ export function InventoryTable({ groups, locations, totalCount, hideQty, readOnl
     );
   }
 
-  const colSpan = 5 - (hideQty ? 1 : 0) - (readOnly ? 1 : 0);
+  const colSpan = 4 - (hideQty ? 1 : 0) - (readOnly ? 1 : 0);
 
   return (
     <div className="card p-0 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-surface hover:bg-transparent">
-            <TableHead className="w-[35%] min-w-[100px]">名稱</TableHead>
-            {!hideQty && <TableHead className="w-[20%]">數量</TableHead>}
-            <TableHead className="w-[20%] min-w-[120px]">最後更新</TableHead>
-            <TableHead className="w-[20%] min-w-[150px]">位置</TableHead>
+            <TableHead className="w-[40%] min-w-[100px]">名稱</TableHead>
+            {!hideQty && <TableHead className="w-[15%]">數量</TableHead>}
+            <TableHead className="w-[45%] min-w-[150px]">位置</TableHead>
             {!readOnly && (
               <TableHead className="w-[10%]">
                 <span className="sr-only"></span>
@@ -133,24 +132,26 @@ function InventoryGroupRows({ group, locations, hideQty, readOnly, colSpan }: In
             </TableCell>
           )}
           <TableCell>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm text-foreground whitespace-nowrap">
-                {formatRelativeTime(item.updatedAt)}
-              </span>
-              <span className="text-xs text-text-muted truncate">
-                {item.updatedByCurrentName}
-              </span>
-            </div>
-          </TableCell>
-          <TableCell>
             {readOnly ? (
-              <span className="text-sm text-foreground">{locations.find((l) => l._id === item.locationId)?.name ?? ""}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-sm text-foreground">{locations.find((l) => l._id === item.locationId)?.name ?? ""}</span>
+                {item.remarks && (
+                  <span className="text-sm text-text-muted truncate">{item.remarks}</span>
+                )}
+              </div>
             ) : (
-              <LocationSelectCell
-                id={item._id}
-                locationId={item.locationId}
-                locations={locations}
-              />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="shrink-0">
+                  <LocationSelectCell
+                    id={item._id}
+                    locationId={item.locationId}
+                    locations={locations}
+                  />
+                </div>
+                <div className="min-w-0 w-24">
+                  <RemarksInput id={item._id} remarks={item.remarks ?? ""} />
+                </div>
+              </div>
             )}
           </TableCell>
           {!readOnly && (

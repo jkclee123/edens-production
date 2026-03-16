@@ -34,6 +34,7 @@ export default defineSchema({
     isActive: v.boolean(),
     updatedAt: v.number(),
     updatedByUserId: v.id("users"),
+    remarks: v.optional(v.string()),
     updatedByEmail: v.string(), // denormalized
   })
     .index("by_isActive", ["isActive"])

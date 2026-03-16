@@ -340,6 +340,32 @@ export const updateLocation = mutation({
 });
 
 /**
+ * Update inventory item remarks
+ */
+export const updateRemarks = mutation({
+  args: {
+    id: v.id("inventory"),
+    remarks: v.string(),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUserForMutation(ctx, args.userEmail);
+
+    const item = await ctx.db.get(args.id);
+    if (!item || !item.isActive) {
+      throw new Error("Inventory item not found");
+    }
+
+    await ctx.db.patch(args.id, {
+      remarks: args.remarks,
+      updatedAt: Date.now(),
+      updatedByUserId: user._id,
+      updatedByEmail: user.email,
+    });
+  },
+});
+
+/**
  * Soft delete an inventory item (set isActive=false)
  */
 export const remove = mutation({
