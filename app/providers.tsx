@@ -1,11 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { ToastProvider } from "@/components/ui/Toast";
-
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 interface ProvidersProps {
   children: ReactNode;
@@ -24,6 +22,20 @@ interface ProvidersProps {
  * 2. Use ConvexProviderWithAuth with proper token fetching
  */
 export function Providers({ children }: ProvidersProps) {
+  const convex = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!url) return null;
+    return new ConvexReactClient(url);
+  }, []);
+
+  if (!convex) {
+    return (
+      <SessionProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </SessionProvider>
+    );
+  }
+
   return (
     <SessionProvider>
       <ConvexProvider client={convex}>

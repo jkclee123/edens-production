@@ -25,6 +25,8 @@ jobs:
         run: bun update
 
       - name: Verify build still passes
+        env:
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
         run: |
           bun install --frozen-lockfile
           bun run build
