@@ -1,10 +1,8 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { normalizeEmail } from "@/lib/normalizeEmail";
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+import { getConvexClient } from "@/lib/convexHttp";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -30,6 +28,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       try {
+        const convex = getConvexClient();
+
         // Check if email is in allowlist
         const isAllowed = await convex.query(api.crewEmails.isAllowed, {
           email: normalizeEmail(email),
