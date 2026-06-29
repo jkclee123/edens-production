@@ -62,10 +62,10 @@ export function TodoBoard() {
     api.todos.list,
     isHydrated
       ? {
-          search: filters.search,
-          status: filters.status as string[] | undefined,
-          userEmail,
-        }
+        search: filters.search,
+        status: filters.status as string[] | undefined,
+        userEmail,
+      }
       : "skip"
   );
 
@@ -207,7 +207,7 @@ function TodoGroupSection({
     <div className="card p-0 overflow-hidden">
       <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-border">
         <span
-          className={`rounded-lg px-3 py-1 text-xs font-medium ${TodoStatusBadgeClasses[status]}`}
+          className={`rounded-lg px-3 py-1 text-sm lg:text-base font-medium ${TodoStatusBadgeClasses[status]}`}
         >
           {TodoStatusLabels[status]}
         </span>
