@@ -31,7 +31,9 @@ export function TodoRow({
   level,
 }: TodoRowProps) {
   const [isDeleted, setIsDeleted] = useState(false);
-  const [expandedSubtasks, setExpandedSubtasks] = useState<
+  // Subtasks are expanded by default; only collapsed when the user explicitly
+  // clicks the collapse button.
+  const [collapsedSubtasks, setCollapsedSubtasks] = useState<
     Record<string, boolean>
   >({});
   const [isUpdating, setIsUpdating] = useState(false);
@@ -73,13 +75,13 @@ export function TodoRow({
   }, [deleteTodo, todo._id, userEmail]);
 
   const isSubtaskExpanded = (subtaskId: string) => {
-    return expandedSubtasks[subtaskId] ?? true;
+    return !collapsedSubtasks[subtaskId];
   };
 
   const toggleSubtaskExpand = (subtaskId: string) => {
-    setExpandedSubtasks((prev) => ({
+    setCollapsedSubtasks((prev) => ({
       ...prev,
-      [subtaskId]: !isSubtaskExpanded(subtaskId),
+      [subtaskId]: !prev[subtaskId],
     }));
   };
 
@@ -143,7 +145,7 @@ export function TodoRow({
               handleUpdate({ id: todo._id, remarks: value || undefined })
             }
             placeholder="—"
-            className="w-full wrap-break-words text-foreground/80"
+            className="w-full wrap-break-word text-foreground/80"
             disabled={isUpdating || !todo.canEdit}
           />
         </td>
