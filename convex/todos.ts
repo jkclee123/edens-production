@@ -1,0 +1,456 @@
+import { query, mutation, QueryCtx } from "./_generated/server";
+import { v } from "convex/values";
+import {
+  requireAuthorizedUser,
+  requireUserForMutation,
+  normalizeEmail,
+} from "./_auth";
+import { Doc, Id } from "./_generated/dataModel";
+
+// ============================================================
+// Helpers
+// ============================================================
+
+/**
+ * Resolve current user id from auth or email fallback.
+ */
+async function getCurrentUserId(
+  ctx: { db: QueryCtx["db"] },
+  authResult: Awaited<ReturnType<typeof requireAuthorizedUser>>,
+  userEmail?: string
+): Promise<Id<"users"> | null> {
+  if (authResult?.user) return authResult.user._id;
+
+  if (userEmail) {
+    const normalized = normalizeEmail(userEmail);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_normalizedEmail", (q) =>
+        q.eq("normalizedEmail", normalized)
+      )
+      .first();
+    if (user) return user._id;
+  }
+
+  return null;
+}
+
+/**
+ * Build a display-name map for a list of normalized emails.
+ */
+async function buildNameMap(
+  ctx: { db: QueryCtx["db"] },
+  emails: string[]
+): Promise<Map<string, string>> {
+  const uniqueEmails = [...new Set(emails.map(normalizeEmail))];
+  const users = await Promise.all(
+    uniqueEmails.map((email) =>
+      ctx.db
+        .query("users")
+        .withIndex("by_normalizedEmail", (q) =>
+          q.eq("normalizedEmail", email)
+        )
+        .first()
+    )
+  );
+
+  const map = new Map<string, string>();
+  for (const user of users) {
+    if (user) {
+      map.set(user.normalizedEmail, user.name);
+    }
+  }
+  return map;
+}
+
+/**
+ * Enrich a todo with canEdit flag and current creator name.
+ */
+function enrichTodo(
+  todo: Doc<"todos">,
+  currentUserId: Id<"users"> | null,
+  nameMap: Map<string, string>
+): TodoWithMeta {
+  return {
+    ...todo,
+    createdByCurrentName:
+      nameMap.get(normalizeEmail(todo.createdByEmail)) ?? "",
+    canEdit: currentUserId !== null && todo.createdByUserId === currentUserId,
+  };
+}
+
+// ============================================================
+// Public types returned by queries
+// ============================================================
+
+export interface TodoWithMeta extends Doc<"todos"> {
+  createdByCurrentName: string;
+  canEdit: boolean;
+  subtasks?: TodoWithMeta[];
+}
+
+// ============================================================
+// Queries
+// ============================================================
+
+/**
+ * List active top-level todos, always grouped by status.
+ * Within each status group:
+ *   1. Tasks with reminderDate == today sort to top
+ *   2. Then createdAt ascending
+ */
+export const list = query({
+  args: {
+    search: v.optional(v.string()),
+    status: v.optional(v.array(v.string())),
+    assigneeId: v.optional(v.string()),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const authResult = await requireAuthorizedUser(ctx);
+
+    // Fetch top-level active todos
+    let todos: Doc<"todos">[] = [];
+    if (args.search && args.search.trim()) {
+      todos = await ctx.db
+        .query("todos")
+        .withSearchIndex("search_name", (q) =>
+          q
+            .search("name", args.search!.trim())
+            .eq("isActive", true)
+            .eq("parentId", undefined)
+        )
+        .collect();
+    } else {
+      todos = await ctx.db
+        .query("todos")
+        .withIndex("by_isActive_parentId", (q) =>
+          q.eq("isActive", true).eq("parentId", undefined)
+        )
+        .order("desc")
+        .collect();
+    }
+
+    // Fetch subtasks for all top-level todos
+    const subtasksByParent = new Map<Id<"todos">, Doc<"todos">[]>();
+    await Promise.all(
+      todos.map(async (todo) => {
+        const subtasks = await ctx.db
+          .query("todos")
+          .withIndex("by_isActive_parentId", (q) =>
+            q.eq("isActive", true).eq("parentId", todo._id)
+          )
+          .order("desc")
+          .collect();
+        subtasksByParent.set(todo._id, subtasks);
+      })
+    );
+
+    // Filter values
+    const statusSet = args.status ? new Set(args.status) : null;
+
+    const matchesFilters = (todo: Doc<"todos">) => {
+      if (statusSet && !statusSet.has(todo.status)) return false;
+      if (args.assigneeId) {
+        if (!todo.assigneeId) return false;
+        if (todo.assigneeId !== args.assigneeId) return false;
+      }
+      return true;
+    };
+
+    const currentUserId = await getCurrentUserId(ctx, authResult, args.userEmail);
+
+    // Build name map for creators
+    const emails = todos.map((t) => t.createdByEmail);
+    for (const [, subs] of subtasksByParent) {
+      for (const sub of subs) emails.push(sub.createdByEmail);
+    }
+    const nameMap = await buildNameMap(ctx, emails);
+
+    // Filter top-level todos
+    let filtered = todos.filter(matchesFilters);
+
+    // Fixed sorting:
+    // - reminderDate == today first
+    // - then createdAt ascending
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const todayEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1
+    ).getTime();
+
+    const isToday = (timestamp: number | undefined) =>
+      timestamp !== undefined && timestamp >= todayStart && timestamp < todayEnd;
+
+    filtered.sort((a, b) => {
+      const aToday = isToday(a.reminderDate) ? 1 : 0;
+      const bToday = isToday(b.reminderDate) ? 1 : 0;
+      if (aToday !== bToday) return bToday - aToday;
+      return a.createdAt - b.createdAt;
+    });
+
+    // Enrich todos and attach subtasks
+    const enriched: TodoWithMeta[] = filtered.map((todo) => {
+      const subs = (subtasksByParent.get(todo._id) || [])
+        .filter(matchesFilters)
+        .map((sub) => enrichTodo(sub, currentUserId, nameMap));
+
+      // Sort subtasks the same way
+      subs.sort((a, b) => {
+        const aToday = isToday(a.reminderDate) ? 1 : 0;
+        const bToday = isToday(b.reminderDate) ? 1 : 0;
+        if (aToday !== bToday) return bToday - aToday;
+        return a.createdAt - b.createdAt;
+      });
+
+      return {
+        ...enrichTodo(todo, currentUserId, nameMap),
+        subtasks: subs,
+      };
+    });
+
+    // Always group by status
+    const statusOrder = ["IN_PROGRESS", "REVIEW", "NOT_STARTED", "DONE"];
+    const groups: Record<string, TodoWithMeta[]> = {};
+    for (const todo of enriched) {
+      if (!groups[todo.status]) groups[todo.status] = [];
+      groups[todo.status].push(todo);
+    }
+
+    // Ensure predefined order keys exist for iteration
+    for (const status of statusOrder) {
+      if (!groups[status]) groups[status] = [];
+    }
+
+    return { groups, total: enriched.length };
+  },
+});
+
+/**
+ * Get a single todo by ID, including subtasks.
+ */
+export const getById = query({
+  args: {
+    id: v.id("todos"),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const authResult = await requireAuthorizedUser(ctx);
+    const todo = await ctx.db.get(args.id);
+
+    if (!todo || !todo.isActive) {
+      return null;
+    }
+
+    const currentUserId = await getCurrentUserId(ctx, authResult, args.userEmail);
+    const nameMap = await buildNameMap(ctx, [todo.createdByEmail]);
+
+    const subtasks = await ctx.db
+      .query("todos")
+      .withIndex("by_isActive_parentId", (q) =>
+        q.eq("isActive", true).eq("parentId", todo._id)
+      )
+      .order("desc")
+      .collect();
+
+    return {
+      ...enrichTodo(todo, currentUserId, nameMap),
+      subtasks: subtasks.map((sub) =>
+        enrichTodo(sub, currentUserId, nameMap)
+      ),
+    };
+  },
+});
+
+// ============================================================
+// Mutations
+// ============================================================
+
+/**
+ * Create a new todo / task.
+ */
+export const create = mutation({
+  args: {
+    name: v.string(),
+    status: v.optional(
+      v.union(
+        v.literal("NOT_STARTED"),
+        v.literal("IN_PROGRESS"),
+        v.literal("REVIEW"),
+        v.literal("DONE")
+      )
+    ),
+    remarks: v.optional(v.string()),
+    reminderDate: v.optional(v.number()),
+    assigneeId: v.optional(v.string()),
+    parentId: v.optional(v.string()),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUserForMutation(ctx, args.userEmail);
+
+    const trimmedName = args.name.trim();
+    if (!trimmedName) {
+      throw new Error("Task name cannot be empty");
+    }
+
+    // Resolve assignee if provided
+    let assigneeId: Id<"users"> | undefined = undefined;
+    let assigneeName: string | undefined = undefined;
+    let assigneeImageUrl: string | undefined = undefined;
+
+    if (args.assigneeId) {
+      const assignee = await ctx.db.get(args.assigneeId as Id<"users">);
+      if (assignee) {
+        assigneeId = assignee._id;
+        assigneeName = assignee.name;
+        assigneeImageUrl = assignee.imageUrl ?? undefined;
+      }
+    }
+
+    // Validate parent task if provided
+    let parentId: Id<"todos"> | undefined = undefined;
+    if (args.parentId) {
+      const parent = await ctx.db.get(args.parentId as Id<"todos">);
+      if (!parent || !parent.isActive) {
+        throw new Error("Parent task not found");
+      }
+      parentId = parent._id;
+    }
+
+    const now = Date.now();
+
+    const todoId = await ctx.db.insert("todos", {
+      name: trimmedName,
+      status: args.status ?? "NOT_STARTED",
+      remarks: args.remarks?.trim() || undefined,
+      reminderDate: args.reminderDate,
+      assigneeId,
+      assigneeName,
+      assigneeImageUrl,
+      parentId,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+      createdByUserId: user._id,
+      createdByEmail: user.email,
+    });
+
+    return todoId;
+  },
+});
+
+/**
+ * Update a todo.
+ * Only the creator can update.
+ */
+export const update = mutation({
+  args: {
+    id: v.id("todos"),
+    name: v.optional(v.string()),
+    status: v.optional(
+      v.union(
+        v.literal("NOT_STARTED"),
+        v.literal("IN_PROGRESS"),
+        v.literal("REVIEW"),
+        v.literal("DONE")
+      )
+    ),
+    remarks: v.optional(v.string()),
+    reminderDate: v.optional(v.number()),
+    assigneeId: v.optional(v.string()),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUserForMutation(ctx, args.userEmail);
+
+    const todo = await ctx.db.get(args.id);
+    if (!todo || !todo.isActive) {
+      throw new Error("Task not found");
+    }
+
+    if (todo.createdByUserId !== user._id) {
+      throw new Error("You can only edit your own tasks");
+    }
+
+    const patch: Partial<Doc<"todos">> = {
+      updatedAt: Date.now(),
+    };
+
+    if (args.name !== undefined) {
+      const trimmed = args.name.trim();
+      if (!trimmed) throw new Error("Task name cannot be empty");
+      patch.name = trimmed;
+    }
+    if (args.status !== undefined) patch.status = args.status;
+    if (args.remarks !== undefined) {
+      patch.remarks = args.remarks.trim() || undefined;
+    }
+    if (args.reminderDate !== undefined) {
+      patch.reminderDate = args.reminderDate || undefined;
+    }
+
+    if (args.assigneeId !== undefined) {
+      if (args.assigneeId) {
+        const assignee = await ctx.db.get(args.assigneeId as Id<"users">);
+        if (assignee) {
+          patch.assigneeId = assignee._id;
+          patch.assigneeName = assignee.name;
+          patch.assigneeImageUrl = assignee.imageUrl ?? undefined;
+        }
+      } else {
+        patch.assigneeId = undefined;
+        patch.assigneeName = undefined;
+        patch.assigneeImageUrl = undefined;
+      }
+    }
+
+    await ctx.db.patch(args.id, patch);
+    return args.id;
+  },
+});
+
+/**
+ * Soft delete a todo and its subtasks.
+ * Only the creator can delete.
+ */
+export const remove = mutation({
+  args: {
+    id: v.id("todos"),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUserForMutation(ctx, args.userEmail);
+
+    const todo = await ctx.db.get(args.id);
+    if (!todo) {
+      throw new Error("Task not found");
+    }
+
+    if (todo.createdByUserId !== user._id) {
+      throw new Error("You can only delete your own tasks");
+    }
+
+    if (!todo.isActive) return;
+
+    const now = Date.now();
+
+    // Soft delete subtasks
+    const subtasks = await ctx.db
+      .query("todos")
+      .withIndex("by_isActive_parentId", (q) =>
+        q.eq("isActive", true).eq("parentId", todo._id)
+      )
+      .collect();
+
+    await Promise.all(
+      subtasks.map((sub) =>
+        ctx.db.patch(sub._id, { isActive: false, updatedAt: now })
+      )
+    );
+
+    await ctx.db.patch(args.id, { isActive: false, updatedAt: now });
+  },
+});

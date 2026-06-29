@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  // Redirect to inventory page (main app page)
-  redirect("/inventory");
+  // Redirect to todo page (main app page)
+  redirect("/todo");
 }
 

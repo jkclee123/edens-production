@@ -9,7 +9,7 @@ import logo from "@/app/crew.png";
 
 function LoginContent() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/inventory";
+  const callbackUrl = searchParams.get("callbackUrl") || "/todo";
   const error = searchParams.get("error");
 
   const getErrorMessage = (errorCode: string | null) => {

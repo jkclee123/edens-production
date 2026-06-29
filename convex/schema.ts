@@ -77,5 +77,35 @@ export default defineSchema({
     reference: v.string(), // e.g. "約翰福音 3:16"
     updatedAt: v.number(),
   }).index("by_date", ["date"]),
+
+  // Task board / todo list
+  todos: defineTable({
+    name: v.string(),
+    status: v.union(
+      v.literal("NOT_STARTED"),
+      v.literal("IN_PROGRESS"),
+      v.literal("REVIEW"),
+      v.literal("DONE")
+    ),
+    remarks: v.optional(v.string()),
+    reminderDate: v.optional(v.number()), // end-of-day timestamp
+    assigneeId: v.optional(v.id("users")),
+    assigneeName: v.optional(v.string()), // denormalized for display
+    assigneeImageUrl: v.optional(v.string()), // denormalized for display
+    parentId: v.optional(v.id("todos")), // null = top-level task
+    isActive: v.boolean(), // soft delete
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    createdByUserId: v.id("users"),
+    createdByEmail: v.string(), // denormalized
+  })
+    .index("by_isActive_createdAt", ["isActive", "createdAt"])
+    .index("by_isActive_parentId", ["isActive", "parentId"])
+    .index("by_isActive_status", ["isActive", "status"])
+    .index("by_isActive_assigneeId", ["isActive", "assigneeId"])
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["isActive", "parentId"],
+    }),
 });
 

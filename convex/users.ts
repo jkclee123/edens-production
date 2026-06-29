@@ -103,5 +103,16 @@ export const getById = query({
   },
 });
 
+/**
+ * List all active users for assignee selection
+ */
+export const list = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAuthorizedUser(ctx);
+    return await ctx.db.query("users").order("desc").collect();
+  },
+});
+
 
 

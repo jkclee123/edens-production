@@ -15,6 +15,7 @@ import type * as inventory from "../inventory.js";
 import type * as locationOrders from "../locationOrders.js";
 import type * as locations from "../locations.js";
 import type * as notices from "../notices.js";
+import type * as todos from "../todos.js";
 import type * as users from "../users.js";
 
 import type {
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   locationOrders: typeof locationOrders;
   locations: typeof locations;
   notices: typeof notices;
+  todos: typeof todos;
   users: typeof users;
 }>;
 

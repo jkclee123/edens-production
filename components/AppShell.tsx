@@ -89,7 +89,7 @@ export function AppShell({ children }: AppShellProps) {
 
         {/* Center: Logo */}
         <Link
-          href="/inventory"
+          href="/todo"
           className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
         >
           <Image
