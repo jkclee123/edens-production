@@ -89,8 +89,8 @@ export function TodoRow({
     <>
       <tr
         className={`group transition-colors hover:bg-accent/5 ${isToday
-            ? "border-l-4 border-accent bg-accent/[0.06]"
-            : ""
+          ? "border-l-4 border-accent bg-accent/6"
+          : ""
           }`}
       >
         {/* Expand button */}
@@ -143,7 +143,7 @@ export function TodoRow({
               handleUpdate({ id: todo._id, remarks: value || undefined })
             }
             placeholder="—"
-            className="w-full break-words text-foreground/80"
+            className="w-full wrap-break-words text-foreground/80"
             disabled={isUpdating || !todo.canEdit}
           />
         </td>
