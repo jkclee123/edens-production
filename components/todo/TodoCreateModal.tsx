@@ -7,7 +7,6 @@ import { Dialog, Button, Input, Select } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import {
   TodoStatus,
-  TodoStatusLabels,
   inputValueToReminderDate,
   TodoWithMeta,
 } from "@/lib/types/todos";
@@ -30,7 +29,6 @@ export function TodoCreateModal({
 
   const [formData, setFormData] = useState({
     name: "",
-    status: TodoStatus.NOT_STARTED,
     remarks: "",
     reminderDate: "",
     parentId: parentId || "",
@@ -42,7 +40,6 @@ export function TodoCreateModal({
     if (isOpen) {
       setFormData({
         name: "",
-        status: TodoStatus.NOT_STARTED,
         remarks: "",
         reminderDate: "",
         parentId: parentId || "",
@@ -65,7 +62,7 @@ export function TodoCreateModal({
     try {
       await createTodo({
         name: trimmedName,
-        status: formData.status,
+        status: TodoStatus.NOT_STARTED,
         remarks: formData.remarks.trim() || undefined,
         reminderDate: inputValueToReminderDate(formData.reminderDate),
         parentId: formData.parentId || undefined,
@@ -101,30 +98,16 @@ export function TodoCreateModal({
           disabled={isSubmitting}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <Select
-            label="狀態"
-            value={formData.status}
-            onChange={(e) =>
-              setFormData({ ...formData, status: e.target.value as TodoStatus })
-            }
-            options={Object.values(TodoStatus).map((status) => ({
-              value: status,
-              label: TodoStatusLabels[status],
-            }))}
-            disabled={isSubmitting}
-          />
-          <Input
-            label="提醒日期"
-            type="date"
-            value={formData.reminderDate}
-            onChange={(e) =>
-              setFormData({ ...formData, reminderDate: e.target.value })
-            }
-            disabled={isSubmitting}
-            className="[color-scheme:dark]"
-          />
-        </div>
+        <Input
+          label="提醒日期"
+          type="date"
+          value={formData.reminderDate}
+          onChange={(e) =>
+            setFormData({ ...formData, reminderDate: e.target.value })
+          }
+          disabled={isSubmitting}
+          className="[color-scheme:dark]"
+        />
 
         <Input
           label="備註"

@@ -3,39 +3,18 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import {
-  TodoWithMeta,
-  TodoStatus,
-  isReminderToday,
-} from "@/lib/types/todos";
+import { TodoWithMeta, TodoStatus, isReminderToday } from "@/lib/types/todos";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
-import {
-  InlineTextInput,
-  StatusDropdown,
-  DatePicker,
-} from "./fields";
+import { InlineTextInput, StatusCheckbox, DatePicker } from "./fields";
 
 interface TodoRowProps {
   todo: TodoWithMeta;
-  isExpanded: boolean;
-  onToggleExpand: () => void;
   onCreateSubtask?: (parentId: string) => void;
   level: number;
 }
 
-export function TodoRow({
-  todo,
-  isExpanded,
-  onToggleExpand,
-  onCreateSubtask,
-  level,
-}: TodoRowProps) {
+export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
   const [isDeleted, setIsDeleted] = useState(false);
-  // Subtasks are expanded by default; only collapsed when the user explicitly
-  // clicks the collapse button.
-  const [collapsedSubtasks, setCollapsedSubtasks] = useState<
-    Record<string, boolean>
-  >({});
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +22,6 @@ export function TodoRow({
   const deleteTodo = useMutation(api.todos.remove);
   const userEmail = useUserEmail();
 
-  const hasSubtasks = (todo.subtasks?.length ?? 0) > 0;
   const isToday = isReminderToday(todo.reminderDate);
 
   const handleUpdate = useCallback(
@@ -74,59 +52,21 @@ export function TodoRow({
     }
   }, [deleteTodo, todo._id, userEmail]);
 
-  const isSubtaskExpanded = (subtaskId: string) => {
-    return !collapsedSubtasks[subtaskId];
-  };
-
-  const toggleSubtaskExpand = (subtaskId: string) => {
-    setCollapsedSubtasks((prev) => ({
-      ...prev,
-      [subtaskId]: !prev[subtaskId],
-    }));
-  };
-
   if (isDeleted) return null;
 
   return (
     <>
       <tr
-        className={`group transition-colors hover:bg-accent/5 ${isToday
-          ? "border-l-4 border-accent bg-accent/6"
-          : ""
+        className={`group transition-colors hover:bg-accent/5 ${isToday ? "border-l-4 border-accent bg-accent/6" : ""
           }`}
       >
-        {/* Expand button */}
-        <td className="px-1 py-1.5">
-          {hasSubtasks ? (
-            <button
-              type="button"
-              onClick={onToggleExpand}
-              className="flex h-5 w-5 items-center justify-center rounded text-text-muted hover:bg-surface-elevated hover:text-foreground"
-            >
-              <svg
-                className={`h-3.5 w-3.5 transition-transform ${isExpanded ? "rotate-90" : ""
-                  }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          ) : (
-            <div className="h-5 w-5" />
-          )}
-        </td>
+        {/* Spacer */}
+        <td className="px-0 py-1.5"></td>
 
         {/* Task name */}
         <td
           className="px-1.5 py-1.5"
-          style={{ paddingLeft: `${level * 16}px` }}
+          style={{ paddingLeft: `${level * 12}px` }}
         >
           <InlineTextInput
             value={todo.name}
@@ -151,12 +91,10 @@ export function TodoRow({
         </td>
 
         {/* Status */}
-        <td className="px-1.5 py-1.5 whitespace-nowrap">
-          <StatusDropdown
+        <td className="px-1.5 py-1.5 text-center">
+          <StatusCheckbox
             value={todo.status as TodoStatus}
-            onChange={(value) =>
-              handleUpdate({ id: todo._id, status: value })
-            }
+            onChange={(value) => handleUpdate({ id: todo._id, status: value })}
             disabled={isUpdating || !todo.canEdit}
           />
         </td>
@@ -234,18 +172,15 @@ export function TodoRow({
         </tr>
       )}
 
-      {/* Subtasks */}
-      {isExpanded &&
-        todo.subtasks?.map((subtask) => (
-          <TodoRow
-            key={subtask._id}
-            todo={subtask}
-            isExpanded={isSubtaskExpanded(subtask._id)}
-            onToggleExpand={() => toggleSubtaskExpand(subtask._id)}
-            onCreateSubtask={onCreateSubtask}
-            level={level + 1}
-          />
-        ))}
+      {/* Subtasks are always expanded */}
+      {todo.subtasks?.map((subtask) => (
+        <TodoRow
+          key={subtask._id}
+          todo={subtask}
+          onCreateSubtask={onCreateSubtask}
+          level={level + 1}
+        />
+      ))}
     </>
   );
 }

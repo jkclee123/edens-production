@@ -140,7 +140,7 @@ export function TodoFilters({
 
             {/* Status filter */}
             <FilterSection label="狀態">
-              {Object.values(TodoStatus).map((status) => (
+              {[TodoStatus.NOT_STARTED, TodoStatus.DONE].map((status) => (
                 <FilterCheckbox
                   key={status}
                   label={TodoStatusLabels[status]}

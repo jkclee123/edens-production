@@ -1,3 +1,3 @@
 export { InlineTextInput } from "./InlineTextInput";
-export { StatusDropdown } from "./StatusDropdown";
+export { StatusCheckbox } from "./StatusCheckbox";
 export { DatePicker } from "./DatePicker";

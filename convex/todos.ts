@@ -211,8 +211,8 @@ export const list = query({
       };
     });
 
-    // Always group by status
-    const statusOrder = ["IN_PROGRESS", "REVIEW", "NOT_STARTED", "DONE"];
+    // Always group by status (primary UI statuses first; legacy statuses follow)
+    const statusOrder = ["NOT_STARTED", "DONE"];
     const groups: Record<string, TodoWithMeta[]> = {};
     for (const todo of enriched) {
       if (!groups[todo.status]) groups[todo.status] = [];

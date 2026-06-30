@@ -118,12 +118,7 @@ export function inputValueToReminderDate(value: string): number | undefined {
   return new Date(`${value}T23:59:59.999`).getTime();
 }
 
-export const statusGroupOrder = [
-  TodoStatus.IN_PROGRESS,
-  TodoStatus.REVIEW,
-  TodoStatus.NOT_STARTED,
-  TodoStatus.DONE,
-];
+export const statusGroupOrder = [TodoStatus.NOT_STARTED, TodoStatus.DONE];
 
 export function getStatusGroupLabel(status: string): string {
   return TodoStatusLabels[status as TodoStatus] || status;
