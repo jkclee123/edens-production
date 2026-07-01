@@ -34,12 +34,12 @@ export function TodoTable({
           <thead className="border-b border-border bg-surface">
             <tr className="text-left text-sm lg:text-base font-bold tracking-wider text-text-muted">
               <th className="px-0 py-2"></th>
-              <th className="px-1.5 py-2 whitespace-nowrap">任務名稱</th>
-              <th className="px-1.5 py-2 whitespace-nowrap">備註</th>
-              <th className="px-1.5 py-2 text-center whitespace-nowrap">狀態</th>
-              <th className="px-1.5 py-2 whitespace-nowrap">負責人</th>
-              <th className="px-1.5 py-2">提醒日期</th>
-              <th className="px-1.5 py-2"></th>
+              <th className="px-1 py-2 whitespace-nowrap">任務名稱</th>
+              <th className="px-1 py-2 whitespace-nowrap">備註</th>
+              <th className="px-1 py-2 text-center whitespace-nowrap">狀態</th>
+              <th className="px-1 py-2 whitespace-nowrap">負責人</th>
+              <th className="px-1 py-2">提醒日期</th>
+              <th className="px-1 py-2"></th>
             </tr>
           </thead>
         )}
