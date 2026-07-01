@@ -46,7 +46,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!window.confirm("真係要刪除呢個任務？")) return;
+    if (!window.confirm(`真係要刪除任務 ${todo.name}？`)) return;
 
     setIsDeleted(true);
     setError(null);
@@ -56,20 +56,19 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
       setError(err instanceof Error ? err.message : "刪除失敗");
       setIsDeleted(false);
     }
-  }, [deleteTodo, todo._id, userEmail]);
+  }, [deleteTodo, todo._id, todo.name, userEmail]);
 
   if (isDeleted) return null;
 
   return (
     <>
       <tr
-        className={`group transition-colors hover:bg-accent/5 ${
-          isToday
-            ? "border-l-4 border-warning bg-warning/10"
-            : isAssignedToMe
-              ? "bg-brand-green/10"
-              : ""
-        }`}
+        className={`group transition-colors hover:bg-accent/10 ${isToday
+          ? "border-l-4 border-warning bg-warning/10 hover:bg-warning/15"
+          : isAssignedToMe
+            ? "bg-brand-green/20 hover:bg-brand-green/25"
+            : ""
+          }`}
       >
         {/* Spacer */}
         <td className="px-0 py-1.5">
@@ -125,9 +124,8 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
               })
             }
             disabled={isUpdating}
-            className={`w-full truncate appearance-none border-0 bg-transparent px-1.5 py-1 text-sm cursor-pointer transition-colors hover:bg-surface-elevated/50 focus:outline-none focus:bg-surface-elevated/50 disabled:opacity-50 disabled:cursor-not-allowed ${
-              todo.assigneeId ? "text-foreground/80" : "text-text-muted"
-            }`}
+            className={`w-full truncate appearance-none border-0 bg-transparent px-1.5 py-1 text-sm cursor-pointer transition-colors hover:bg-surface-elevated/50 focus:outline-none focus:bg-surface-elevated/50 disabled:opacity-50 disabled:cursor-not-allowed ${todo.assigneeId ? "text-foreground/80" : "text-text-muted"
+              }`}
           >
             <option value="">—</option>
             {users.map((user) => (
@@ -181,7 +179,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
                 type="button"
                 onClick={handleDelete}
                 disabled={isUpdating}
-                className="rounded p-1 text-text-muted transition-colors hover:bg-surface-elevated hover:text-error disabled:opacity-40"
+                className="ml-1 rounded p-1 text-text-muted transition-colors hover:bg-surface-elevated hover:text-error disabled:opacity-40"
                 title="刪除任務"
               >
                 <svg
