@@ -23,8 +23,8 @@ export function TodoTable({
       <table className="w-full min-w-3xl table-fixed text-sm lg:text-base">
         <colgroup>
           <col className="w-4 lg:w-6" />
-          <col className="w-[14%] lg:w-[30%]" />
-          <col className="w-[14%] lg:w-[30%]" />
+          <col className="w-[12%] lg:w-[30%]" />
+          <col className="w-[12%] lg:w-[30%]" />
           <col className="w-14 lg:w-16" />
           <col className="w-[14%]" />
           <col className="w-[16%]" />
