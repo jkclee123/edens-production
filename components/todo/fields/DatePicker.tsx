@@ -95,7 +95,7 @@ export function DatePicker({
               type="date"
               value={inputValue}
               onChange={handleDateChange}
-              className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-accent [color-scheme:dark]"
+              className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-accent scheme-dark"
             />
             {value && (
               <button
