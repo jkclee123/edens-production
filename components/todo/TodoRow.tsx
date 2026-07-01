@@ -80,13 +80,13 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         {/* Task name */}
         <td
           className="px-1.5 py-1.5"
-          style={{ paddingLeft: `${level * 12}px` }}
+          style={{ paddingLeft: `${level * 8}px` }}
         >
           <InlineTextInput
             value={todo.name}
             onChange={(value) => handleUpdate({ id: todo._id, name: value })}
             placeholder="任務名稱"
-            className="font-semibold"
+            className={`font-semibold ${level > 0 ? "text-foreground/80" : ""}`}
             disabled={isUpdating || !todo.canEdit}
           />
         </td>

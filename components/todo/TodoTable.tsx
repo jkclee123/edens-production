@@ -22,7 +22,7 @@ export function TodoTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-3xl table-fixed text-sm lg:text-base">
         <colgroup>
-          <col className="w-1 lg:w-6" />
+          <col className="w-2 lg:w-6" />
           <col className="w-[12%] lg:w-[30%]" />
           <col className="w-[12%] lg:w-[30%]" />
           <col className="w-14 lg:w-16" />
