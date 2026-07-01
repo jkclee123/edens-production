@@ -283,7 +283,7 @@ export const create = mutation({
       )
     ),
     remarks: v.optional(v.string()),
-    reminderDate: v.optional(v.number()),
+    reminderDate: v.optional(v.union(v.number(), v.null())),
     assigneeId: v.optional(v.string()),
     parentId: v.optional(v.string()),
     userEmail: v.optional(v.string()),
@@ -326,7 +326,7 @@ export const create = mutation({
       name: trimmedName,
       status: args.status ?? "NOT_STARTED",
       remarks: args.remarks?.trim() || undefined,
-      reminderDate: args.reminderDate,
+      reminderDate: args.reminderDate ?? undefined,
       assigneeId,
       assigneeName,
       assigneeImageUrl,
@@ -359,7 +359,7 @@ export const update = mutation({
       )
     ),
     remarks: v.optional(v.string()),
-    reminderDate: v.optional(v.number()),
+    reminderDate: v.optional(v.union(v.number(), v.null())),
     assigneeId: v.optional(v.string()),
     userEmail: v.optional(v.string()),
   },
@@ -371,7 +371,15 @@ export const update = mutation({
       throw new Error("Task not found");
     }
 
-    if (todo.createdByUserId !== user._id) {
+    const isCreator = todo.createdByUserId === user._id;
+    const editingOtherFields =
+      args.name !== undefined ||
+      args.status !== undefined ||
+      args.remarks !== undefined ||
+      args.reminderDate !== undefined;
+
+    // Non-creators may only reassign the assignee
+    if (!isCreator && editingOtherFields) {
       throw new Error("You can only edit your own tasks");
     }
 
@@ -379,19 +387,23 @@ export const update = mutation({
       updatedAt: Date.now(),
     };
 
-    if (args.name !== undefined) {
-      const trimmed = args.name.trim();
-      if (!trimmed) throw new Error("Task name cannot be empty");
-      patch.name = trimmed;
-    }
-    if (args.status !== undefined) patch.status = args.status;
-    if (args.remarks !== undefined) {
-      patch.remarks = args.remarks.trim() || undefined;
-    }
-    if (args.reminderDate !== undefined) {
-      patch.reminderDate = args.reminderDate || undefined;
+    if (isCreator) {
+      if (args.name !== undefined) {
+        const trimmed = args.name.trim();
+        if (!trimmed) throw new Error("Task name cannot be empty");
+        patch.name = trimmed;
+      }
+      if (args.status !== undefined) patch.status = args.status;
+      if (args.remarks !== undefined) {
+        patch.remarks = args.remarks.trim() || undefined;
+      }
+      if (args.reminderDate !== undefined) {
+        patch.reminderDate =
+          args.reminderDate == null ? undefined : args.reminderDate;
+      }
     }
 
+    // Anyone can reassign
     if (args.assigneeId !== undefined) {
       if (args.assigneeId) {
         const assignee = await ctx.db.get(args.assigneeId as Id<"users">);

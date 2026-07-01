@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Dialog, Button, Input, Select } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
@@ -26,11 +26,13 @@ export function TodoCreateModal({
 }: TodoCreateModalProps) {
   const createTodo = useMutation(api.todos.create);
   const userEmail = useUserEmail();
+  const users = useQuery(api.users.list, {});
 
   const [formData, setFormData] = useState({
     name: "",
     remarks: "",
     reminderDate: "",
+    assigneeId: "",
     parentId: parentId || "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,7 @@ export function TodoCreateModal({
         name: "",
         remarks: "",
         reminderDate: "",
+        assigneeId: "",
         parentId: parentId || "",
       });
       setError(null);
@@ -65,6 +68,7 @@ export function TodoCreateModal({
         status: TodoStatus.NOT_STARTED,
         remarks: formData.remarks.trim() || undefined,
         reminderDate: inputValueToReminderDate(formData.reminderDate),
+        assigneeId: formData.assigneeId || undefined,
         parentId: formData.parentId || undefined,
         userEmail,
       });
@@ -106,7 +110,7 @@ export function TodoCreateModal({
             setFormData({ ...formData, reminderDate: e.target.value })
           }
           disabled={isSubmitting}
-          className="[color-scheme:dark]"
+          className="scheme-dark"
         />
 
         <Input
@@ -116,6 +120,22 @@ export function TodoCreateModal({
             setFormData({ ...formData, remarks: e.target.value })
           }
           placeholder="例如：50% 完成、等待審核..."
+          disabled={isSubmitting}
+        />
+
+        <Select
+          label="負責人（選填）"
+          value={formData.assigneeId}
+          onChange={(e) =>
+            setFormData({ ...formData, assigneeId: e.target.value })
+          }
+          options={[
+            { value: "", label: "無" },
+            ...(users ?? []).map((user) => ({
+              value: user._id,
+              label: user.name,
+            })),
+          ]}
           disabled={isSubmitting}
         />
 

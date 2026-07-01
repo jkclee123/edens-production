@@ -1,5 +1,7 @@
 "use client";
 
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { TodoWithMeta } from "@/lib/types/todos";
 import { TodoRow } from "./TodoRow";
 
@@ -14,16 +16,18 @@ export function TodoTable({
   level = 0,
   onCreateSubtask,
 }: TodoTableProps) {
+  const users = useQuery(api.users.list, {});
+
   return (
     <div className="overflow-x-auto">
-      <table className="w-full table-fixed text-sm lg:text-base">
+      <table className="w-full min-w-[768px] table-fixed text-sm lg:text-base">
         <colgroup>
           <col className="w-4 lg:w-6" />
           <col className="w-[28%] lg:w-[30%]" />
           <col className="w-[28%] lg:w-[30%]" />
-          <col className="hidden lg:table-column lg:w-[14%]" />
           <col className="w-14 lg:w-16" />
-          <col className="hidden lg:table-column lg:w-[16%]" />
+          <col className="w-[14%]" />
+          <col className="w-[16%]" />
           <col className="w-18" />
         </colgroup>
         {level === 0 && (
@@ -32,9 +36,9 @@ export function TodoTable({
               <th className="px-0 py-2"></th>
               <th className="px-1.5 py-2 whitespace-nowrap">任務名稱</th>
               <th className="px-1.5 py-2 whitespace-nowrap">備註</th>
-              <th className="hidden lg:table-cell px-1.5 py-2 whitespace-nowrap">負責人</th>
               <th className="px-1.5 py-2 text-center whitespace-nowrap">狀態</th>
-              <th className="hidden lg:table-cell px-3 py-2">提醒日期</th>
+              <th className="px-1.5 py-2 whitespace-nowrap">負責人</th>
+              <th className="px-3 py-2">提醒日期</th>
               <th className="px-1.5 py-2"></th>
             </tr>
           </thead>
@@ -46,6 +50,7 @@ export function TodoTable({
               todo={todo}
               onCreateSubtask={onCreateSubtask}
               level={level}
+              users={users ?? []}
             />
           ))}
         </tbody>

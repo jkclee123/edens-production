@@ -6,7 +6,7 @@ import { formatReminderDate, reminderDateToInputValue, inputValueToReminderDate 
 
 interface DatePickerProps {
   value: number | undefined;
-  onChange: (value: number | undefined) => void;
+  onChange: (value: number | null) => void;
   isToday?: boolean;
   disabled?: boolean;
 }
@@ -53,15 +53,16 @@ export function DatePicker({
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (newValue) {
-      onChange(inputValueToReminderDate(newValue));
+      const ts = inputValueToReminderDate(newValue);
+      onChange(ts ?? null);
     } else {
-      onChange(undefined);
+      onChange(null);
     }
     setIsOpen(false);
   };
 
   const handleClear = () => {
-    onChange(undefined);
+    onChange(null);
     setIsOpen(false);
   };
 
@@ -75,8 +76,8 @@ export function DatePicker({
         disabled={disabled}
         onClick={handleOpen}
         className={`rounded px-2 py-1 text-xs transition-colors ${value
-            ? "text-foreground/80"
-            : "text-text-muted"
+          ? "text-foreground/80"
+          : "text-text-muted"
           }`}
       >
         {value ? formatReminderDate(value) : "—"}
@@ -86,7 +87,7 @@ export function DatePicker({
         createPortal(
           <div
             ref={dropdownRef}
-            className="fixed z-[9999] rounded-xl border border-border bg-surface p-3 shadow-xl"
+            className="fixed z-9999 rounded-xl border border-border bg-surface p-3 shadow-xl"
             style={{ top: position.top, left: position.left }}
           >
             <input

@@ -6,14 +6,17 @@ import { api } from "@/convex/_generated/api";
 import { TodoWithMeta, TodoStatus, isReminderToday } from "@/lib/types/todos";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import { InlineTextInput, StatusCheckbox, DatePicker } from "./fields";
+import type { Doc } from "@/convex/_generated/dataModel";
+import { ChevronRight } from "lucide-react";
 
 interface TodoRowProps {
   todo: TodoWithMeta;
   onCreateSubtask?: (parentId: string) => void;
   level: number;
+  users: Doc<"users">[];
 }
 
-export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
+export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
   const [isDeleted, setIsDeleted] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +72,11 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
         }`}
       >
         {/* Spacer */}
-        <td className="px-0 py-1.5"></td>
+        <td className="px-0 py-1.5">
+          {todo.subtasks && todo.subtasks.length > 0 ? (
+            <ChevronRight className="h-4 w-4 text-text-muted" />
+          ) : null}
+        </td>
 
         {/* Task name */}
         <td
@@ -90,23 +97,12 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
           <InlineTextInput
             value={todo.remarks ?? ""}
             onChange={(value) =>
-              handleUpdate({ id: todo._id, remarks: value || undefined })
+              handleUpdate({ id: todo._id, remarks: value })
             }
             placeholder="—"
             className="w-full wrap-break-word text-foreground/80"
             disabled={isUpdating || !todo.canEdit}
           />
-        </td>
-
-        {/* Assignee */}
-        <td className="hidden lg:table-cell px-1.5 py-1.5 whitespace-nowrap">
-          {todo.assigneeId ? (
-            <span className="text-sm text-foreground/80">
-              {todo.assigneeName}
-            </span>
-          ) : (
-            <span className="text-text-muted">—</span>
-          )}
         </td>
 
         {/* Status */}
@@ -118,8 +114,32 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
           />
         </td>
 
+        {/* Assignee */}
+        <td className="px-1.5 py-1.5 whitespace-nowrap">
+          <select
+            value={todo.assigneeId ?? ""}
+            onChange={(e) =>
+              handleUpdate({
+                id: todo._id,
+                assigneeId: e.target.value,
+              })
+            }
+            disabled={isUpdating}
+            className={`w-full truncate appearance-none border-0 bg-transparent px-1.5 py-1 text-sm cursor-pointer transition-colors hover:bg-surface-elevated/50 focus:outline-none focus:bg-surface-elevated/50 disabled:opacity-50 disabled:cursor-not-allowed ${
+              todo.assigneeId ? "text-foreground/80" : "text-text-muted"
+            }`}
+          >
+            <option value="">—</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        </td>
+
         {/* Reminder Date */}
-        <td className="hidden lg:table-cell px-3 py-1.5">
+        <td className="px-3 py-1.5">
           <DatePicker
             value={todo.reminderDate}
             onChange={(value) =>
@@ -198,6 +218,7 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
           todo={subtask}
           onCreateSubtask={onCreateSubtask}
           level={level + 1}
+          users={users}
         />
       ))}
     </>
