@@ -74,13 +74,10 @@ export function DatePicker({
         type="button"
         disabled={disabled}
         onClick={handleOpen}
-        className={`rounded px-2 py-1 text-xs transition-colors ${
-          isToday
-            ? "font-medium text-accent"
-            : value
-              ? "text-foreground/80"
-              : "text-text-muted"
-        }`}
+        className={`rounded px-2 py-1 text-xs transition-colors ${value
+            ? "text-foreground/80"
+            : "text-text-muted"
+          }`}
       >
         {value ? formatReminderDate(value) : "—"}
       </button>

@@ -21,6 +21,7 @@ export function TodoTable({
           <col className="w-4 lg:w-6" />
           <col className="w-[28%] lg:w-[30%]" />
           <col className="w-[28%] lg:w-[30%]" />
+          <col className="hidden lg:table-column lg:w-[14%]" />
           <col className="w-14 lg:w-16" />
           <col className="hidden lg:table-column lg:w-[16%]" />
           <col className="w-18" />
@@ -31,6 +32,7 @@ export function TodoTable({
               <th className="px-0 py-2"></th>
               <th className="px-1.5 py-2 whitespace-nowrap">任務名稱</th>
               <th className="px-1.5 py-2 whitespace-nowrap">備註</th>
+              <th className="hidden lg:table-cell px-1.5 py-2 whitespace-nowrap">負責人</th>
               <th className="px-1.5 py-2 text-center whitespace-nowrap">狀態</th>
               <th className="hidden lg:table-cell px-3 py-2">提醒日期</th>
               <th className="px-1.5 py-2"></th>

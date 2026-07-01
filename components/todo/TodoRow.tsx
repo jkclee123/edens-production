@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TodoWithMeta, TodoStatus, isReminderToday } from "@/lib/types/todos";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
@@ -21,8 +21,11 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
   const updateTodo = useMutation(api.todos.update);
   const deleteTodo = useMutation(api.todos.remove);
   const userEmail = useUserEmail();
+  const currentUser = useQuery(api.users.getCurrent, userEmail ? { userEmail } : "skip");
 
   const isToday = isReminderToday(todo.reminderDate);
+  const isAssignedToMe =
+    !!currentUser && !!todo.assigneeId && currentUser._id === todo.assigneeId;
 
   const handleUpdate = useCallback(
     async (updates: Parameters<typeof updateTodo>[0]) => {
@@ -57,8 +60,13 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
   return (
     <>
       <tr
-        className={`group transition-colors hover:bg-accent/5 ${isToday ? "border-l-4 border-accent bg-accent/6" : ""
-          }`}
+        className={`group transition-colors hover:bg-accent/5 ${
+          isToday
+            ? "border-l-4 border-warning bg-warning/10"
+            : isAssignedToMe
+              ? "bg-brand-green/10"
+              : ""
+        }`}
       >
         {/* Spacer */}
         <td className="px-0 py-1.5"></td>
@@ -88,6 +96,17 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
             className="w-full wrap-break-word text-foreground/80"
             disabled={isUpdating || !todo.canEdit}
           />
+        </td>
+
+        {/* Assignee */}
+        <td className="hidden lg:table-cell px-1.5 py-1.5 whitespace-nowrap">
+          {todo.assigneeId ? (
+            <span className="text-sm text-foreground/80">
+              {todo.assigneeName}
+            </span>
+          ) : (
+            <span className="text-text-muted">—</span>
+          )}
         </td>
 
         {/* Status */}
@@ -166,7 +185,7 @@ export function TodoRow({ todo, onCreateSubtask, level }: TodoRowProps) {
 
       {error && (
         <tr>
-          <td colSpan={6} className="px-3 py-2">
+          <td colSpan={7} className="px-3 py-2">
             <p className="text-xs text-error animate-fade-in">{error}</p>
           </td>
         </tr>
