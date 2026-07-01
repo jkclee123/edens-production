@@ -104,7 +104,8 @@ export interface TodoWithMeta extends Doc<"todos"> {
  * List active top-level todos, always grouped by status.
  * Within each status group:
  *   1. Tasks assigned to the current login user sort to top
- *   2. Then createdAt ascending
+ *   2. Tasks with a reminderDate, sorted by reminderDate ascending
+ *   3. Then createdAt ascending
  */
 export const list = query({
   args: {
@@ -178,14 +179,28 @@ export const list = query({
     let filtered = todos.filter(matchesFilters);
 
     // Fixed sorting:
-    // - tasks assigned to current login user first
-    // - then createdAt ascending
-    filtered.sort((a, b) => {
+    //   1. tasks assigned to current login user first
+    //   2. tasks with reminderDate set, sorted by reminderDate ascending
+    //   3. then createdAt ascending
+    const compareTodos = (
+      a: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
+      b: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
+    ) => {
       const aMe = a.assigneeId === currentUserId ? 1 : 0;
       const bMe = b.assigneeId === currentUserId ? 1 : 0;
       if (aMe !== bMe) return bMe - aMe;
+
+      const aHasReminder = a.reminderDate !== undefined ? 1 : 0;
+      const bHasReminder = b.reminderDate !== undefined ? 1 : 0;
+      if (aHasReminder !== bHasReminder) return bHasReminder - aHasReminder;
+      if (aHasReminder && bHasReminder) {
+        return (a.reminderDate as number) - (b.reminderDate as number);
+      }
+
       return a.createdAt - b.createdAt;
-    });
+    };
+
+    filtered.sort(compareTodos);
 
     // Enrich todos and attach subtasks
     const enriched: TodoWithMeta[] = filtered.map((todo) => {
@@ -194,12 +209,7 @@ export const list = query({
         .map((sub) => enrichTodo(sub, currentUserId, nameMap));
 
       // Sort subtasks the same way
-      subs.sort((a, b) => {
-        const aMe = a.assigneeId === currentUserId ? 1 : 0;
-        const bMe = b.assigneeId === currentUserId ? 1 : 0;
-        if (aMe !== bMe) return bMe - aMe;
-        return a.createdAt - b.createdAt;
-      });
+      subs.sort(compareTodos);
 
       return {
         ...enrichTodo(todo, currentUserId, nameMap),
