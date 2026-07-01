@@ -24,7 +24,7 @@ export function TodoTable({
         <colgroup>
           <col className="w-2 lg:w-6" />
           <col className="w-[12%] lg:w-[30%]" />
-          <col className="w-[12%] lg:w-[30%]" />
+          <col className="w-[10%] lg:w-[30%]" />
           <col className="w-14 lg:w-16" />
           <col className="w-[14%] lg:w-[16%]" />
           <col className="w-[14%] lg:w-[16%]" />
