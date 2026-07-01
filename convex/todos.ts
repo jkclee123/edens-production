@@ -178,16 +178,32 @@ export const list = query({
     // Filter top-level todos
     let filtered = todos.filter(matchesFilters);
 
+    // Track top-level todos that have at least one subtask assigned to the
+    // current login user, so those parents sort to the top too.
+    const parentIdsWithAssignedSubtask = new Set<Id<"todos">>();
+    for (const [parentId, subs] of subtasksByParent) {
+      if (subs.some((sub) => sub.assigneeId === currentUserId)) {
+        parentIdsWithAssignedSubtask.add(parentId);
+      }
+    }
+
     // Fixed sorting:
-    //   1. tasks assigned to current login user first
+    //   1. tasks assigned to current login user (or with a subtask assigned to
+    //      them) first
     //   2. tasks with reminderDate set, sorted by reminderDate ascending
     //   3. then createdAt ascending
     const compareTodos = (
-      a: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
-      b: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
+      a: { _id: Id<"todos">; assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
+      b: { _id: Id<"todos">; assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
     ) => {
-      const aMe = a.assigneeId === currentUserId ? 1 : 0;
-      const bMe = b.assigneeId === currentUserId ? 1 : 0;
+      const aMe =
+        a.assigneeId === currentUserId || parentIdsWithAssignedSubtask.has(a._id)
+          ? 1
+          : 0;
+      const bMe =
+        b.assigneeId === currentUserId || parentIdsWithAssignedSubtask.has(b._id)
+          ? 1
+          : 0;
       if (aMe !== bMe) return bMe - aMe;
 
       const aHasReminder = a.reminderDate !== undefined ? 1 : 0;
