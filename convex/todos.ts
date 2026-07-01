@@ -181,17 +181,53 @@ export const list = query({
     // Track top-level todos that have at least one subtask assigned to the
     // current login user, so those parents sort to the top too.
     const parentIdsWithAssignedSubtask = new Set<Id<"todos">>();
+    // Effective reminderDate for sorting = min(parent's own reminderDate,
+    // smallest subtask reminderDate whose assignee is the login user).
+    const effectiveReminderByParent = new Map<Id<"todos">, number>();
     for (const [parentId, subs] of subtasksByParent) {
-      if (subs.some((sub) => sub.assigneeId === currentUserId)) {
-        parentIdsWithAssignedSubtask.add(parentId);
+      let assignedToMe = false;
+      let minSubReminder: number | undefined;
+      for (const sub of subs) {
+        if (sub.assigneeId === currentUserId) {
+          assignedToMe = true;
+          if (
+            sub.reminderDate !== undefined &&
+            (minSubReminder === undefined ||
+              sub.reminderDate < minSubReminder)
+          ) {
+            minSubReminder = sub.reminderDate;
+          }
+        }
+      }
+      if (assignedToMe) parentIdsWithAssignedSubtask.add(parentId);
+      if (minSubReminder !== undefined) {
+        const own =
+          todos.find((t) => t._id === parentId)?.reminderDate ?? undefined;
+        const effective =
+          own === undefined
+            ? minSubReminder
+            : Math.min(own, minSubReminder);
+        effectiveReminderByParent.set(parentId, effective);
       }
     }
 
     // Fixed sorting:
     //   1. tasks assigned to current login user (or with a subtask assigned to
     //      them) first
-    //   2. tasks with reminderDate set, sorted by reminderDate ascending
+    //   2. tasks with reminderDate (own or via assigned subtask), sorted by
+    //      effective reminderDate ascending
     //   3. then createdAt ascending
+    const effectiveReminder = (t: {
+      _id: Id<"todos">;
+      reminderDate?: number;
+    }) => {
+      const own = t.reminderDate;
+      const fromSub = effectiveReminderByParent.get(t._id);
+      if (own !== undefined && fromSub !== undefined)
+        return Math.min(own, fromSub);
+      return own ?? fromSub;
+    };
+
     const compareTodos = (
       a: { _id: Id<"todos">; assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
       b: { _id: Id<"todos">; assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
@@ -206,11 +242,13 @@ export const list = query({
           : 0;
       if (aMe !== bMe) return bMe - aMe;
 
-      const aHasReminder = a.reminderDate !== undefined ? 1 : 0;
-      const bHasReminder = b.reminderDate !== undefined ? 1 : 0;
+      const aReminder = effectiveReminder(a);
+      const bReminder = effectiveReminder(b);
+      const aHasReminder = aReminder !== undefined ? 1 : 0;
+      const bHasReminder = bReminder !== undefined ? 1 : 0;
       if (aHasReminder !== bHasReminder) return bHasReminder - aHasReminder;
       if (aHasReminder && bHasReminder) {
-        return (a.reminderDate as number) - (b.reminderDate as number);
+        return (aReminder as number) - (bReminder as number);
       }
 
       return a.createdAt - b.createdAt;

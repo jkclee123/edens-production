@@ -79,7 +79,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
 
         {/* Task name */}
         <td
-          className="px-1.5 py-1.5"
+          className="px-1 py-1.5"
           style={{ paddingLeft: `${level * 8}px` }}
         >
           <InlineTextInput
@@ -92,7 +92,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         </td>
 
         {/* Remarks */}
-        <td className="px-1.5 py-1.5">
+        <td className="px-1 py-1.5">
           <InlineTextInput
             value={todo.remarks ?? ""}
             onChange={(value) =>
@@ -114,7 +114,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         </td>
 
         {/* Assignee */}
-        <td className="px-1.5 py-1.5 whitespace-nowrap">
+        <td className="px-1 py-1.5 whitespace-nowrap">
           <select
             value={todo.assigneeId ?? ""}
             onChange={(e) =>
@@ -141,7 +141,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         </td>
 
         {/* Reminder Date */}
-        <td className="px-3 py-1.5">
+        <td className="px-1 py-1.5">
           <DatePicker
             value={todo.reminderDate}
             onChange={(value) =>
@@ -153,7 +153,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         </td>
 
         {/* Actions */}
-        <td className="px-1.5 py-1.5">
+        <td className="px-1 py-1.5">
           <div className="flex items-center justify-end gap-1">
             {level === 0 && onCreateSubtask && (
               <button
