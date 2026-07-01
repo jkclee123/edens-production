@@ -104,15 +104,6 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
           />
         </td>
 
-        {/* Status */}
-        <td className="px-1.5 py-1.5 text-center">
-          <StatusCheckbox
-            value={todo.status as TodoStatus}
-            onChange={(value) => handleUpdate({ id: todo._id, status: value })}
-            disabled={isUpdating || !todo.canEdit}
-          />
-        </td>
-
         {/* Assignee */}
         <td className="px-1 py-1.5 whitespace-nowrap">
           <select
@@ -138,6 +129,15 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
               </option>
             ))}
           </select>
+        </td>
+
+        {/* Status */}
+        <td className="px-1.5 py-1.5 text-center">
+          <StatusCheckbox
+            value={todo.status as TodoStatus}
+            onChange={(value) => handleUpdate({ id: todo._id, status: value })}
+            disabled={isUpdating || !todo.canEdit}
+          />
         </td>
 
         {/* Reminder Date */}
