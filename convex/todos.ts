@@ -1,4 +1,10 @@
-import { query, mutation, QueryCtx } from "./_generated/server";
+import {
+  query,
+  mutation,
+  internalQuery,
+  internalAction,
+  QueryCtx,
+} from "./_generated/server";
 import { v } from "convex/values";
 import {
   requireAuthorizedUser,
@@ -6,6 +12,7 @@ import {
   normalizeEmail,
 } from "./_auth";
 import { Doc, Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 
 // ============================================================
 // Helpers
@@ -96,7 +103,7 @@ export interface TodoWithMeta extends Doc<"todos"> {
 /**
  * List active top-level todos, always grouped by status.
  * Within each status group:
- *   1. Tasks with reminderDate == today sort to top
+ *   1. Tasks assigned to the current login user sort to top
  *   2. Then createdAt ascending
  */
 export const list = query({
@@ -171,23 +178,12 @@ export const list = query({
     let filtered = todos.filter(matchesFilters);
 
     // Fixed sorting:
-    // - reminderDate == today first
+    // - tasks assigned to current login user first
     // - then createdAt ascending
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const todayEnd = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1
-    ).getTime();
-
-    const isToday = (timestamp: number | undefined) =>
-      timestamp !== undefined && timestamp >= todayStart && timestamp < todayEnd;
-
     filtered.sort((a, b) => {
-      const aToday = isToday(a.reminderDate) ? 1 : 0;
-      const bToday = isToday(b.reminderDate) ? 1 : 0;
-      if (aToday !== bToday) return bToday - aToday;
+      const aMe = a.assigneeId === currentUserId ? 1 : 0;
+      const bMe = b.assigneeId === currentUserId ? 1 : 0;
+      if (aMe !== bMe) return bMe - aMe;
       return a.createdAt - b.createdAt;
     });
 
@@ -199,9 +195,9 @@ export const list = query({
 
       // Sort subtasks the same way
       subs.sort((a, b) => {
-        const aToday = isToday(a.reminderDate) ? 1 : 0;
-        const bToday = isToday(b.reminderDate) ? 1 : 0;
-        if (aToday !== bToday) return bToday - aToday;
+        const aMe = a.assigneeId === currentUserId ? 1 : 0;
+        const bMe = b.assigneeId === currentUserId ? 1 : 0;
+        if (aMe !== bMe) return bMe - aMe;
         return a.createdAt - b.createdAt;
       });
 
@@ -464,5 +460,97 @@ export const remove = mutation({
     );
 
     await ctx.db.patch(args.id, { isActive: false, updatedAt: now });
+  },
+});
+
+// ============================================================
+// Scheduled reminder email job
+// ============================================================
+
+function hongKongTodayRange(): { start: number; end: number } {
+  // Asia/Hong_Kong is UTC+8 year-round (no DST).
+  const HK_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+  const now = Date.now();
+  const hkEpoch = now + HK_OFFSET_MS;
+  const hkDayStart = Math.floor(hkEpoch / (24 * 60 * 60 * 1000)) * (24 * 60 * 60 * 1000);
+  const start = hkDayStart - HK_OFFSET_MS;
+  const end = start + 24 * 60 * 60 * 1000 - 1;
+  return { start, end };
+}
+
+export const listTodosDueToday = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const { start, end } = hongKongTodayRange();
+
+    const todos = await ctx.db
+      .query("todos")
+      .withIndex("by_isActive_reminderDate", (q) =>
+        q
+          .eq("isActive", true)
+          .gte("reminderDate", start)
+          .lte("reminderDate", end)
+      )
+      .collect();
+
+    const results: Array<{
+      todoId: Id<"todos">;
+      todoName: string;
+      assigneeEmail: string;
+    }> = [];
+
+    for (const todo of todos) {
+      if (todo.status === "DONE") continue;
+      if (!todo.assigneeId) continue;
+
+      const assignee = await ctx.db.get(todo.assigneeId);
+      if (!assignee) continue;
+
+      results.push({
+        todoId: todo._id,
+        todoName: todo.name,
+        assigneeEmail: assignee.email,
+      });
+    }
+
+    return results;
+  },
+});
+
+export const sendReminders = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const dueToday = await ctx.runQuery(internal.todos.listTodosDueToday, {});
+
+    if (dueToday.length === 0) {
+      return { sent: 0 };
+    }
+
+    // Group todo names by assignee email.
+    const byEmail = new Map<string, string[]>();
+    for (const item of dueToday) {
+      const list = byEmail.get(item.assigneeEmail) ?? [];
+      list.push(item.todoName);
+      byEmail.set(item.assigneeEmail, list);
+    }
+
+    let sent = 0;
+    for (const [email, todoNames] of byEmail) {
+      try {
+        await ctx.runAction(internal.emails.sendTodoReminder, {
+          to: email,
+          todoNames,
+        });
+        sent += 1;
+      } catch (err) {
+        console.error(
+          `Failed to send reminder to ${email}:`,
+          err
+        );
+      }
+    }
+
+    return { sent };
   },
 });

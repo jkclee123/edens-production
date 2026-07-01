@@ -10,7 +10,9 @@
 
 import type * as _auth from "../_auth.js";
 import type * as crewEmails from "../crewEmails.js";
+import type * as crons from "../crons.js";
 import type * as dailyVerse from "../dailyVerse.js";
+import type * as emails from "../emails.js";
 import type * as inventory from "../inventory.js";
 import type * as locationOrders from "../locationOrders.js";
 import type * as locations from "../locations.js";
@@ -27,7 +29,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   _auth: typeof _auth;
   crewEmails: typeof crewEmails;
+  crons: typeof crons;
   dailyVerse: typeof dailyVerse;
+  emails: typeof emails;
   inventory: typeof inventory;
   locationOrders: typeof locationOrders;
   locations: typeof locations;

@@ -103,6 +103,7 @@ export default defineSchema({
     .index("by_isActive_parentId", ["isActive", "parentId"])
     .index("by_isActive_status", ["isActive", "status"])
     .index("by_isActive_assigneeId", ["isActive", "assigneeId"])
+    .index("by_isActive_reminderDate", ["isActive", "reminderDate"])
     .searchIndex("search_name", {
       searchField: "name",
       filterFields: ["isActive", "parentId"],
