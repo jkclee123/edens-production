@@ -124,7 +124,11 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
               })
             }
             disabled={isUpdating}
-            className={`w-full truncate appearance-none border-0 bg-transparent px-1.5 py-1 text-sm cursor-pointer transition-colors hover:bg-surface-elevated/50 focus:outline-none focus:bg-surface-elevated/50 disabled:opacity-50 disabled:cursor-not-allowed ${todo.assigneeId ? "text-foreground/80" : "text-text-muted"
+            className={`w-full truncate appearance-none border-0 bg-transparent px-1.5 py-1 text-sm cursor-pointer transition-colors hover:bg-surface-elevated/50 focus:outline-none focus:bg-surface-elevated/50 disabled:opacity-50 disabled:cursor-not-allowed ${isAssignedToMe
+              ? "rounded text-brand-green/70 font-bold"
+              : todo.assigneeId
+                ? "text-foreground/80"
+                : "text-text-muted"
               }`}
           >
             <option value="">—</option>

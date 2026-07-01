@@ -107,7 +107,7 @@
   }
 
   .badge-warning {
-    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-warning/20 text-warning;
+    @apply inline-flex items-center px-2 py-0.5 font-medium rounded-full bg-warning/20 text-warning;
   }
 
   .badge-error {

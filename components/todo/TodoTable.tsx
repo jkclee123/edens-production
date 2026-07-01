@@ -22,13 +22,13 @@ export function TodoTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-3xl table-fixed text-sm lg:text-base">
         <colgroup>
-          <col className="w-4 lg:w-6" />
+          <col className="w-1 lg:w-6" />
           <col className="w-[12%] lg:w-[30%]" />
           <col className="w-[12%] lg:w-[30%]" />
           <col className="w-14 lg:w-16" />
-          <col className="w-[14%]" />
-          <col className="w-[12%]" />
-          <col className="w-18" />
+          <col className="w-[14%] lg:w-[16%]" />
+          <col className="w-[14%] lg:w-[16%]" />
+          <col className="w-6" />
         </colgroup>
         {level === 0 && (
           <thead className="border-b border-border bg-surface">
