@@ -7,7 +7,6 @@ import { TodoWithMeta, TodoStatus, isReminderToday } from "@/lib/types/todos";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import { InlineTextInput, StatusCheckbox, DatePicker } from "./fields";
 import type { Doc } from "@/convex/_generated/dataModel";
-import { ChevronRight } from "lucide-react";
 
 interface TodoRowProps {
   todo: TodoWithMeta;
@@ -70,10 +69,30 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
             : ""
           }`}
       >
-        {/* Spacer */}
+        {/* Spacer / Add subtask */}
         <td className="px-0 py-1.5">
-          {todo.subtasks && todo.subtasks.length > 0 ? (
-            <ChevronRight className="h-4 w-4 text-text-muted" />
+          {level === 0 && onCreateSubtask ? (
+            <button
+              type="button"
+              onClick={() => onCreateSubtask(todo._id)}
+              disabled={isUpdating}
+              className="rounded p-0.5 text-text-muted transition-colors hover:text-warning disabled:opacity-40"
+              title="新增子任務"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </button>
           ) : null}
         </td>
 
@@ -84,7 +103,10 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         >
           <InlineTextInput
             value={todo.name}
-            onChange={(value) => handleUpdate({ id: todo._id, name: value })}
+            onChange={(value) => {
+              if (!value.trim()) return;
+              handleUpdate({ id: todo._id, name: value });
+            }}
             placeholder="任務名稱"
             className={`font-semibold ${level > 0 ? "text-foreground/80" : ""}`}
             disabled={isUpdating || !todo.canEdit}
@@ -100,6 +122,15 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
             }
             placeholder="—"
             className="w-full wrap-break-word text-foreground/80"
+            disabled={isUpdating || !todo.canEdit}
+          />
+        </td>
+
+        {/* Status */}
+        <td className="px-1.5 py-1.5 text-center">
+          <StatusCheckbox
+            value={todo.status as TodoStatus}
+            onChange={(value) => handleUpdate({ id: todo._id, status: value })}
             disabled={isUpdating || !todo.canEdit}
           />
         </td>
@@ -131,15 +162,6 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
           </select>
         </td>
 
-        {/* Status */}
-        <td className="px-1.5 py-1.5 text-center">
-          <StatusCheckbox
-            value={todo.status as TodoStatus}
-            onChange={(value) => handleUpdate({ id: todo._id, status: value })}
-            disabled={isUpdating || !todo.canEdit}
-          />
-        </td>
-
         {/* Reminder Date */}
         <td className="px-1 py-1.5">
           <DatePicker
@@ -155,35 +177,12 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
         {/* Actions */}
         <td className="px-1 py-1.5">
           <div className="flex items-center justify-end gap-1">
-            {level === 0 && onCreateSubtask && (
-              <button
-                type="button"
-                onClick={() => onCreateSubtask(todo._id)}
-                disabled={isUpdating}
-                className="rounded p-1 text-text-muted transition-colors hover:bg-surface-elevated hover:text-accent disabled:opacity-40"
-                title="新增子任務"
-              >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </button>
-            )}
             {todo.canEdit && (
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isUpdating}
-                className="ml-1 rounded p-1 text-text-muted transition-colors hover:bg-surface-elevated hover:text-error disabled:opacity-40"
+                className="ml-1 rounded p-1 text-text-muted transition-colors hover:text-error disabled:opacity-40"
                 title="刪除任務"
               >
                 <svg
