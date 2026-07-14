@@ -50,6 +50,19 @@ export function DatePicker({
   return (
     <div className="relative inline-flex items-center">
       <span
+        onClick={() => {
+          if (disabled) return;
+          const input = inputRef.current;
+          if (!input) return;
+          if (isIOS) {
+            input.focus();
+            return;
+          }
+          try {
+            input.showPicker?.();
+          } catch {}
+          input.focus();
+        }}
         className={`relative inline-block cursor-pointer rounded px-2 py-1 text-xs transition-colors ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         } ${
@@ -66,14 +79,8 @@ export function DatePicker({
           type="date"
           defaultValue={inputValue}
           onChange={handleDateChange}
-          onClick={(e) => {
-            if (isIOS) return;
-            try {
-              e.currentTarget.showPicker?.();
-            } catch {}
-          }}
           disabled={disabled}
-          className="absolute inset-0 h-full w-full opacity-0"
+          className="absolute inset-0 h-full w-full opacity-0 pointer-events-none"
           aria-label="提醒日期"
         />
       </span>
