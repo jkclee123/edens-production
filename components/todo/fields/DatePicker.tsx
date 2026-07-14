@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   formatReminderDate,
   reminderDateToInputValue,
@@ -22,6 +22,11 @@ export function DatePicker({
 }: DatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputValue = reminderDateToInputValue(value);
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.value !== inputValue) {
+      inputRef.current.value = inputValue;
+    }
+  }, [inputValue]);
   const isIOS =
     typeof navigator !== "undefined" &&
     (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -72,7 +77,7 @@ export function DatePicker({
         <input
           ref={inputRef}
           type="date"
-          value={inputValue}
+          defaultValue={inputValue}
           onChange={handleDateChange}
           disabled={disabled}
           className="absolute inset-0 h-full w-full opacity-0 pointer-events-none"
