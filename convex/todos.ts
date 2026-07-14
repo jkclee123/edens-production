@@ -251,7 +251,7 @@ export const list = query({
         return (aReminder as number) - (bReminder as number);
       }
 
-      return a.createdAt - b.createdAt;
+      return b.createdAt - a.createdAt;
     };
 
     filtered.sort(compareTodos);
