@@ -22,6 +22,10 @@ export function DatePicker({
 }: DatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputValue = reminderDateToInputValue(value);
+  const isIOS =
+    typeof navigator !== "undefined" &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -45,12 +49,13 @@ export function DatePicker({
           if (disabled) return;
           const input = inputRef.current;
           if (!input) return;
-          if (typeof input.showPicker === "function") {
-            try {
-              input.showPicker();
-              return;
-            } catch {}
+          if (isIOS) {
+            input.focus();
+            return;
           }
+          try {
+            input.showPicker?.();
+          } catch {}
           input.focus();
         }}
         className={`relative inline-block cursor-pointer rounded px-2 py-1 text-xs transition-colors ${
