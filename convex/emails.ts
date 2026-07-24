@@ -22,14 +22,14 @@ export const sendTodoReminder = internalAction({
     const link = "https://edens-production.vercel.app/todo";
 
     const textBody = [
-      `今日要跟 ${namesCsv}`,
+      `今日要 ${namesCsv}`,
       ``,
       link,
       ``,
     ].join("\n");
 
     const htmlBody = [
-      `<p>今日要跟 ${escapeHtml(namesCsv)}</p>`,
+      `<p>今日要 ${escapeHtml(namesCsv)}</p>`,
       `<p><a href="${link}">${link}</a></p>`,
     ].join("\n");
 
