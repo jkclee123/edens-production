@@ -71,18 +71,23 @@ async function buildNameMap(
 }
 
 /**
- * Enrich a todo with canEdit flag and current creator name.
+ * Enrich a todo with permission flags and current creator name.
+ * - canEdit: any active todo is editable by an allowlisted user.
+ * - canDelete: only the creator can delete.
  */
 function enrichTodo(
   todo: Doc<"todos">,
   currentUserId: Id<"users"> | null,
   nameMap: Map<string, string>
 ): TodoWithMeta {
+  const isCreator =
+    currentUserId !== null && todo.createdByUserId === currentUserId;
   return {
     ...todo,
     createdByCurrentName:
       nameMap.get(normalizeEmail(todo.createdByEmail)) ?? "",
-    canEdit: currentUserId !== null && todo.createdByUserId === currentUserId,
+    canEdit: todo.isActive,
+    canDelete: isCreator,
   };
 }
 
@@ -93,6 +98,7 @@ function enrichTodo(
 export interface TodoWithMeta extends Doc<"todos"> {
   createdByCurrentName: string;
   canEdit: boolean;
+  canDelete: boolean;
   subtasks?: TodoWithMeta[];
 }
 
@@ -404,7 +410,7 @@ export const create = mutation({
 
 /**
  * Update a todo.
- * Only the creator can update.
+ * Any allowlisted user can edit any field. Delete is restricted to the creator.
  */
 export const update = mutation({
   args: {
@@ -424,43 +430,29 @@ export const update = mutation({
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await requireUserForMutation(ctx, args.userEmail);
+    await requireUserForMutation(ctx, args.userEmail);
 
     const todo = await ctx.db.get(args.id);
     if (!todo || !todo.isActive) {
       throw new Error("Task not found");
     }
 
-    const isCreator = todo.createdByUserId === user._id;
-    const editingOtherFields =
-      args.name !== undefined ||
-      args.status !== undefined ||
-      args.remarks !== undefined ||
-      args.reminderDate !== undefined;
-
-    // Non-creators may only reassign the assignee
-    if (!isCreator && editingOtherFields) {
-      throw new Error("You can only edit your own tasks");
-    }
-
     const patch: Partial<Doc<"todos">> = {
       updatedAt: Date.now(),
     };
 
-    if (isCreator) {
-      if (args.name !== undefined) {
-        const trimmed = args.name.trim();
-        if (!trimmed) throw new Error("Task name cannot be empty");
-        patch.name = trimmed;
-      }
-      if (args.status !== undefined) patch.status = args.status;
-      if (args.remarks !== undefined) {
-        patch.remarks = args.remarks.trim() || undefined;
-      }
-      if (args.reminderDate !== undefined) {
-        patch.reminderDate =
-          args.reminderDate == null ? undefined : args.reminderDate;
-      }
+    if (args.name !== undefined) {
+      const trimmed = args.name.trim();
+      if (!trimmed) throw new Error("Task name cannot be empty");
+      patch.name = trimmed;
+    }
+    if (args.status !== undefined) patch.status = args.status;
+    if (args.remarks !== undefined) {
+      patch.remarks = args.remarks.trim() || undefined;
+    }
+    if (args.reminderDate !== undefined) {
+      patch.reminderDate =
+        args.reminderDate == null ? undefined : args.reminderDate;
     }
 
     // Anyone can reassign

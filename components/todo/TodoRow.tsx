@@ -109,7 +109,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
             }}
             placeholder="任務名稱"
             className={`font-semibold ${level > 0 ? "text-foreground/80" : ""}`}
-            disabled={isUpdating || !todo.canEdit}
+            disabled={isUpdating}
           />
         </td>
 
@@ -122,7 +122,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
             }
             placeholder="—"
             className="w-full wrap-break-word text-foreground/80"
-            disabled={isUpdating || !todo.canEdit}
+            disabled={isUpdating}
           />
         </td>
 
@@ -131,7 +131,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
           <StatusCheckbox
             value={todo.status as TodoStatus}
             onChange={(value) => handleUpdate({ id: todo._id, status: value })}
-            disabled={isUpdating || !todo.canEdit}
+            disabled={isUpdating}
           />
         </td>
 
@@ -170,14 +170,14 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
               handleUpdate({ id: todo._id, reminderDate: value })
             }
             isToday={isToday}
-            disabled={isUpdating || !todo.canEdit}
+            disabled={isUpdating}
           />
         </td>
 
         {/* Actions */}
         <td className="px-1 py-1.5">
           <div className="flex items-center justify-end gap-1">
-            {todo.canEdit && (
+            {todo.canDelete && (
               <button
                 type="button"
                 onClick={handleDelete}

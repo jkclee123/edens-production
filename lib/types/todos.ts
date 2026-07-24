@@ -19,6 +19,7 @@ export enum TodoStatus {
 export interface TodoWithMeta extends Doc<"todos"> {
   createdByCurrentName: string;
   canEdit: boolean;
+  canDelete: boolean;
   subtasks?: TodoWithMeta[];
 }
 
