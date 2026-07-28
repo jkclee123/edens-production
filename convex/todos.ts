@@ -167,15 +167,32 @@ export const list = query({
 
     // Sorting:
     //   1. tasks assigned to current login user first
-    //   2. tasks with reminderDate, sorted ascending
-    //   3. then createdAt descending
+    //   2. priority: CRITICAL > URGENT > LOW > unset
+    //   3. tasks with reminderDate, sorted ascending
+    //   4. then createdAt descending
+    const priorityRank = (p?: string) =>
+      p === "CRITICAL" ? 0 : p === "URGENT" ? 1 : p === "LOW" ? 2 : 3;
+
     const compareTodos = (
-      a: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
-      b: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
+      a: {
+        assigneeId?: Id<"users">;
+        priority?: string;
+        reminderDate?: number;
+        createdAt: number;
+      },
+      b: {
+        assigneeId?: Id<"users">;
+        priority?: string;
+        reminderDate?: number;
+        createdAt: number;
+      }
     ) => {
       const aMe = a.assigneeId === currentUserId ? 1 : 0;
       const bMe = b.assigneeId === currentUserId ? 1 : 0;
       if (aMe !== bMe) return bMe - aMe;
+
+      const pr = priorityRank(a.priority) - priorityRank(b.priority);
+      if (pr !== 0) return pr;
 
       const aHasReminder = a.reminderDate !== undefined ? 1 : 0;
       const bHasReminder = b.reminderDate !== undefined ? 1 : 0;
@@ -255,6 +272,14 @@ export const create = mutation({
     remarks: v.optional(v.string()),
     reminderDate: v.optional(v.union(v.number(), v.null())),
     assigneeId: v.optional(v.string()),
+    priority: v.optional(
+      v.union(
+        v.literal("CRITICAL"),
+        v.literal("URGENT"),
+        v.literal("LOW"),
+        v.literal("")
+      )
+    ),
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -279,6 +304,13 @@ export const create = mutation({
       }
     }
 
+    const priority =
+      args.priority === "CRITICAL" ||
+      args.priority === "URGENT" ||
+      args.priority === "LOW"
+        ? args.priority
+        : undefined;
+
     const now = Date.now();
 
     const todoId = await ctx.db.insert("todos", {
@@ -286,6 +318,7 @@ export const create = mutation({
       status: args.status ?? "NOT_STARTED",
       remarks: args.remarks?.trim() || undefined,
       reminderDate: args.reminderDate ?? undefined,
+      priority,
       assigneeId,
       assigneeName,
       assigneeImageUrl,
@@ -319,6 +352,14 @@ export const update = mutation({
     remarks: v.optional(v.string()),
     reminderDate: v.optional(v.union(v.number(), v.null())),
     assigneeId: v.optional(v.string()),
+    priority: v.optional(
+      v.union(
+        v.literal("CRITICAL"),
+        v.literal("URGENT"),
+        v.literal("LOW"),
+        v.literal("")
+      )
+    ),
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -345,6 +386,14 @@ export const update = mutation({
     if (args.reminderDate !== undefined) {
       patch.reminderDate =
         args.reminderDate == null ? undefined : args.reminderDate;
+    }
+    if (args.priority !== undefined) {
+      patch.priority =
+        args.priority === "CRITICAL" ||
+        args.priority === "URGENT" ||
+        args.priority === "LOW"
+          ? args.priority
+          : undefined;
     }
 
     // Anyone can reassign

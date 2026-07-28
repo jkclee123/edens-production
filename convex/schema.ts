@@ -89,6 +89,13 @@ export default defineSchema({
     ),
     remarks: v.optional(v.string()),
     reminderDate: v.optional(v.number()), // end-of-day timestamp
+    priority: v.optional(
+      v.union(
+        v.literal("CRITICAL"),
+        v.literal("URGENT"),
+        v.literal("LOW")
+      )
+    ),
     assigneeId: v.optional(v.id("users")),
     assigneeName: v.optional(v.string()), // denormalized for display
     assigneeImageUrl: v.optional(v.string()), // denormalized for display

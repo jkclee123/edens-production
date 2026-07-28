@@ -3,7 +3,14 @@
 import { useState, useCallback } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { TodoWithMeta, TodoStatus, isReminderToday } from "@/lib/types/todos";
+import {
+  TodoWithMeta,
+  TodoStatus,
+  TodoPriority,
+  TodoPriorityLabels,
+  TodoPriorityClasses,
+  isReminderToday,
+} from "@/lib/types/todos";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
 import { InlineTextInput, StatusCheckbox, DatePicker } from "./fields";
 import type { Doc } from "@/convex/_generated/dataModel";
@@ -106,6 +113,32 @@ export function TodoRow({ todo, users }: TodoRowProps) {
           />
         </td>
 
+        {/* Priority */}
+        <td className="px-1 py-1.5 whitespace-nowrap">
+          <select
+            value={todo.priority ?? ""}
+            onChange={(e) =>
+              handleUpdate({
+                id: todo._id,
+                priority: e.target.value as TodoPriority | "",
+              })
+            }
+            disabled={isUpdating}
+            className={`w-full truncate appearance-none border-0 bg-transparent px-1.5 py-1 text-sm cursor-pointer transition-colors hover:bg-surface-elevated/50 focus:outline-none focus:bg-surface-elevated/50 disabled:opacity-50 disabled:cursor-not-allowed ${
+              todo.priority
+                ? TodoPriorityClasses[todo.priority as TodoPriority]
+                : "text-text-muted"
+            }`}
+          >
+            <option value="">—</option>
+            {(Object.values(TodoPriority) as TodoPriority[]).map((p) => (
+              <option key={p} value={p} className={TodoPriorityClasses[p]}>
+                {TodoPriorityLabels[p]}
+              </option>
+            ))}
+          </select>
+        </td>
+
         {/* Assignee */}
         <td className="px-1 py-1.5 whitespace-nowrap">
           <select
@@ -177,7 +210,7 @@ export function TodoRow({ todo, users }: TodoRowProps) {
 
       {error && (
         <tr>
-          <td colSpan={7} className="px-3 py-2">
+          <td colSpan={8} className="px-3 py-2">
             <p className="text-xs text-error animate-fade-in">{error}</p>
           </td>
         </tr>

@@ -5,7 +5,12 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Dialog, Button, Input, Select } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
-import { TodoStatus, inputValueToReminderDate } from "@/lib/types/todos";
+import {
+  TodoStatus,
+  TodoPriority,
+  TodoPriorityLabels,
+  inputValueToReminderDate,
+} from "@/lib/types/todos";
 
 interface TodoCreateModalProps {
   isOpen: boolean;
@@ -22,6 +27,7 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
     remarks: "",
     reminderDate: "",
     assigneeId: "",
+    priority: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +39,7 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
         remarks: "",
         reminderDate: "",
         assigneeId: "",
+        priority: "",
       });
       setError(null);
     }
@@ -56,6 +63,9 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
         remarks: formData.remarks.trim() || undefined,
         reminderDate: inputValueToReminderDate(formData.reminderDate),
         assigneeId: formData.assigneeId || undefined,
+        priority: (formData.priority || undefined) as
+          | TodoPriority
+          | undefined,
         userEmail,
       });
       onClose();
@@ -95,6 +105,22 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
             setFormData({ ...formData, remarks: e.target.value })
           }
           placeholder="例如：50% 完成、等待審核..."
+          disabled={isSubmitting}
+        />
+
+        <Select
+          label="優先（選填）"
+          value={formData.priority}
+          onChange={(e) =>
+            setFormData({ ...formData, priority: e.target.value })
+          }
+          options={[
+            { value: "", label: "無" },
+            ...(Object.values(TodoPriority) as TodoPriority[]).map((p) => ({
+              value: p,
+              label: TodoPriorityLabels[p],
+            })),
+          ]}
           disabled={isSubmitting}
         />
 

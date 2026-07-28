@@ -17,11 +17,12 @@ export function TodoTable({ todos }: TodoTableProps) {
       <table className="w-full min-w-xl table-fixed text-sm lg:text-base">
         <colgroup>
           <col className="w-[2%]" />
-          <col className="w-[12%] lg:w-[30%]" />
-          <col className="w-[12%] lg:w-[30%]" />
-          <col className="w-[8%] lg:w-[15%]" />
-          <col className="w-[8%] lg:w-[16%]" />
-          <col className="w-[14%] lg:w-[16%]" />
+          <col className="w-[12%] lg:w-[26%]" />
+          <col className="w-[12%] lg:w-[26%]" />
+          <col className="w-[6%] lg:w-[10%]" />
+          <col className="w-[7%] lg:w-[10%]" />
+          <col className="w-[8%] lg:w-[12%]" />
+          <col className="w-[12%] lg:w-[12%]" />
           <col className="w-[3%]" />
         </colgroup>
         <thead className="border-b border-border bg-surface">
@@ -30,6 +31,7 @@ export function TodoTable({ todos }: TodoTableProps) {
             <th className="px-1 py-2 whitespace-nowrap">任務名稱</th>
             <th className="px-1 py-2 whitespace-nowrap">備註</th>
             <th className="px-1.5 py-2 text-center whitespace-nowrap">狀態</th>
+            <th className="px-1 py-2 whitespace-nowrap">優先</th>
             <th className="px-1 py-2 whitespace-nowrap">負責人</th>
             <th className="px-1 py-2">提醒日期</th>
             <th className="px-1 py-2"></th>

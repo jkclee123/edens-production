@@ -12,6 +12,12 @@ export enum TodoStatus {
   DONE = "DONE",
 }
 
+export enum TodoPriority {
+  CRITICAL = "CRITICAL",
+  URGENT = "URGENT",
+  LOW = "LOW",
+}
+
 // ============================================================
 // Types
 // ============================================================
@@ -43,6 +49,12 @@ export const TodoStatusLabels: Record<TodoStatus, string> = {
   [TodoStatus.DONE]: "已完成",
 };
 
+export const TodoPriorityLabels: Record<TodoPriority, string> = {
+  [TodoPriority.CRITICAL]: "危殆",
+  [TodoPriority.URGENT]: "緊急",
+  [TodoPriority.LOW]: "唔急",
+};
+
 // ============================================================
 // Badge colors (adapted to edens-production palette)
 // ============================================================
@@ -53,6 +65,26 @@ export const TodoStatusBadgeClasses: Record<TodoStatus, string> = {
   [TodoStatus.REVIEW]: "bg-warning/30 text-foreground",
   [TodoStatus.DONE]: "bg-success/30 text-foreground",
 };
+
+export const TodoPriorityClasses: Record<TodoPriority, string> = {
+  [TodoPriority.CRITICAL]: "text-[#9B30FF] font-bold",
+  [TodoPriority.URGENT]: "text-error font-bold",
+  [TodoPriority.LOW]: "text-success font-bold",
+};
+
+/** Lower number = higher priority. Unset ranks last. */
+export const TodoPriorityOrder: Record<TodoPriority, number> = {
+  [TodoPriority.CRITICAL]: 0,
+  [TodoPriority.URGENT]: 1,
+  [TodoPriority.LOW]: 2,
+};
+
+export function getTodoPriorityRank(priority: string | undefined): number {
+  if (priority && priority in TodoPriorityOrder) {
+    return TodoPriorityOrder[priority as TodoPriority];
+  }
+  return 3;
+}
 
 // ============================================================
 // Validation
@@ -76,6 +108,7 @@ export const createTodoSchema = z.object({
   remarks: todoRemarks,
   reminderDate: z.number().optional(),
   assigneeId: z.string().optional(),
+  priority: z.nativeEnum(TodoPriority).optional(),
 });
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;
