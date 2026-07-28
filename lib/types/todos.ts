@@ -20,7 +20,6 @@ export interface TodoWithMeta extends Doc<"todos"> {
   createdByCurrentName: string;
   canEdit: boolean;
   canDelete: boolean;
-  subtasks?: TodoWithMeta[];
 }
 
 export interface TodoFilters {
@@ -77,7 +76,6 @@ export const createTodoSchema = z.object({
   remarks: todoRemarks,
   reminderDate: z.number().optional(),
   assigneeId: z.string().optional(),
-  parentId: z.string().optional(),
 });
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;

@@ -5,25 +5,14 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Dialog, Button, Input, Select } from "@/components/ui";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
-import {
-  TodoStatus,
-  inputValueToReminderDate,
-  TodoWithMeta,
-} from "@/lib/types/todos";
+import { TodoStatus, inputValueToReminderDate } from "@/lib/types/todos";
 
 interface TodoCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  parentId?: string;
-  todos: TodoWithMeta[];
 }
 
-export function TodoCreateModal({
-  isOpen,
-  onClose,
-  parentId,
-  todos,
-}: TodoCreateModalProps) {
+export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
   const createTodo = useMutation(api.todos.create);
   const userEmail = useUserEmail();
   const users = useQuery(api.users.list, {});
@@ -33,7 +22,6 @@ export function TodoCreateModal({
     remarks: "",
     reminderDate: "",
     assigneeId: "",
-    parentId: parentId || "",
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,11 +33,10 @@ export function TodoCreateModal({
         remarks: "",
         reminderDate: "",
         assigneeId: "",
-        parentId: parentId || "",
       });
       setError(null);
     }
-  }, [isOpen, parentId]);
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +56,6 @@ export function TodoCreateModal({
         remarks: formData.remarks.trim() || undefined,
         reminderDate: inputValueToReminderDate(formData.reminderDate),
         assigneeId: formData.assigneeId || undefined,
-        parentId: formData.parentId || undefined,
         userEmail,
       });
       onClose();
@@ -80,19 +66,8 @@ export function TodoCreateModal({
     }
   };
 
-  const parentOptions = todos
-    .filter((todo) => todo.status !== TodoStatus.DONE)
-    .map((todo) => ({
-      value: todo._id,
-      label: todo.name,
-    }));
-
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={parentId ? "新增子任務" : "新增任務"}
-    >
+    <Dialog isOpen={isOpen} onClose={onClose} title="新增任務">
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="任務名稱 *"
@@ -138,21 +113,6 @@ export function TodoCreateModal({
           ]}
           disabled={isSubmitting}
         />
-
-        {!parentId && parentOptions.length > 0 && (
-          <Select
-            label="上層任務（選填）"
-            value={formData.parentId}
-            onChange={(e) =>
-              setFormData({ ...formData, parentId: e.target.value })
-            }
-            options={[
-              { value: "", label: "無（頂層任務）" },
-              ...parentOptions,
-            ]}
-            disabled={isSubmitting}
-          />
-        )}
 
         {error && <p className="text-sm text-error animate-fade-in">{error}</p>}
 

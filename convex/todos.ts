@@ -99,7 +99,6 @@ export interface TodoWithMeta extends Doc<"todos"> {
   createdByCurrentName: string;
   canEdit: boolean;
   canDelete: boolean;
-  subtasks?: TodoWithMeta[];
 }
 
 // ============================================================
@@ -123,7 +122,7 @@ export const list = query({
   handler: async (ctx, args) => {
     const authResult = await requireAuthorizedUser(ctx);
 
-    // Fetch top-level active todos
+    // Fetch active top-level todos (parentId === undefined)
     let todos: Doc<"todos">[] = [];
     if (args.search && args.search.trim()) {
       todos = await ctx.db
@@ -145,21 +144,6 @@ export const list = query({
         .collect();
     }
 
-    // Fetch subtasks for all top-level todos
-    const subtasksByParent = new Map<Id<"todos">, Doc<"todos">[]>();
-    await Promise.all(
-      todos.map(async (todo) => {
-        const subtasks = await ctx.db
-          .query("todos")
-          .withIndex("by_isActive_parentId", (q) =>
-            q.eq("isActive", true).eq("parentId", todo._id)
-          )
-          .order("desc")
-          .collect();
-        subtasksByParent.set(todo._id, subtasks);
-      })
-    );
-
     // Filter values
     const statusSet = args.status ? new Set(args.status) : null;
 
@@ -176,85 +160,28 @@ export const list = query({
 
     // Build name map for creators
     const emails = todos.map((t) => t.createdByEmail);
-    for (const [, subs] of subtasksByParent) {
-      for (const sub of subs) emails.push(sub.createdByEmail);
-    }
     const nameMap = await buildNameMap(ctx, emails);
 
     // Filter top-level todos
     let filtered = todos.filter(matchesFilters);
 
-    // Track top-level todos that have at least one subtask assigned to the
-    // current login user, so those parents sort to the top too.
-    const parentIdsWithAssignedSubtask = new Set<Id<"todos">>();
-    // Effective reminderDate for sorting = min(parent's own reminderDate,
-    // smallest subtask reminderDate whose assignee is the login user).
-    const effectiveReminderByParent = new Map<Id<"todos">, number>();
-    for (const [parentId, subs] of subtasksByParent) {
-      let assignedToMe = false;
-      let minSubReminder: number | undefined;
-      for (const sub of subs) {
-        if (sub.assigneeId === currentUserId) {
-          assignedToMe = true;
-          if (
-            sub.reminderDate !== undefined &&
-            (minSubReminder === undefined ||
-              sub.reminderDate < minSubReminder)
-          ) {
-            minSubReminder = sub.reminderDate;
-          }
-        }
-      }
-      if (assignedToMe) parentIdsWithAssignedSubtask.add(parentId);
-      if (minSubReminder !== undefined) {
-        const own =
-          todos.find((t) => t._id === parentId)?.reminderDate ?? undefined;
-        const effective =
-          own === undefined
-            ? minSubReminder
-            : Math.min(own, minSubReminder);
-        effectiveReminderByParent.set(parentId, effective);
-      }
-    }
-
-    // Fixed sorting:
-    //   1. tasks assigned to current login user (or with a subtask assigned to
-    //      them) first
-    //   2. tasks with reminderDate (own or via assigned subtask), sorted by
-    //      effective reminderDate ascending
-    //   3. then createdAt ascending
-    const effectiveReminder = (t: {
-      _id: Id<"todos">;
-      reminderDate?: number;
-    }) => {
-      const own = t.reminderDate;
-      const fromSub = effectiveReminderByParent.get(t._id);
-      if (own !== undefined && fromSub !== undefined)
-        return Math.min(own, fromSub);
-      return own ?? fromSub;
-    };
-
+    // Sorting:
+    //   1. tasks assigned to current login user first
+    //   2. tasks with reminderDate, sorted ascending
+    //   3. then createdAt descending
     const compareTodos = (
-      a: { _id: Id<"todos">; assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
-      b: { _id: Id<"todos">; assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
+      a: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number },
+      b: { assigneeId?: Id<"users">; reminderDate?: number; createdAt: number }
     ) => {
-      const aMe =
-        a.assigneeId === currentUserId || parentIdsWithAssignedSubtask.has(a._id)
-          ? 1
-          : 0;
-      const bMe =
-        b.assigneeId === currentUserId || parentIdsWithAssignedSubtask.has(b._id)
-          ? 1
-          : 0;
+      const aMe = a.assigneeId === currentUserId ? 1 : 0;
+      const bMe = b.assigneeId === currentUserId ? 1 : 0;
       if (aMe !== bMe) return bMe - aMe;
 
-      const aReminder = effectiveReminder(a);
-      const bReminder = effectiveReminder(b);
-      const aHasReminder = aReminder !== undefined ? 1 : 0;
-      const bHasReminder = bReminder !== undefined ? 1 : 0;
+      const aHasReminder = a.reminderDate !== undefined ? 1 : 0;
+      const bHasReminder = b.reminderDate !== undefined ? 1 : 0;
       if (aHasReminder !== bHasReminder) return bHasReminder - aHasReminder;
       if (aHasReminder && bHasReminder) {
-        return (aReminder as number) - (bReminder as number);
+        return (a.reminderDate as number) - (b.reminderDate as number);
       }
 
       return b.createdAt - a.createdAt;
@@ -262,20 +189,10 @@ export const list = query({
 
     filtered.sort(compareTodos);
 
-    // Enrich todos and attach subtasks
-    const enriched: TodoWithMeta[] = filtered.map((todo) => {
-      const subs = (subtasksByParent.get(todo._id) || [])
-        .filter(matchesFilters)
-        .map((sub) => enrichTodo(sub, currentUserId, nameMap));
-
-      // Sort subtasks the same way
-      subs.sort(compareTodos);
-
-      return {
-        ...enrichTodo(todo, currentUserId, nameMap),
-        subtasks: subs,
-      };
-    });
+    // Enrich todos
+    const enriched: TodoWithMeta[] = filtered.map((todo) =>
+      enrichTodo(todo, currentUserId, nameMap)
+    );
 
     // Always group by status (primary UI statuses first; legacy statuses follow)
     const statusOrder = ["NOT_STARTED", "DONE"];
@@ -295,7 +212,7 @@ export const list = query({
 });
 
 /**
- * Get a single todo by ID, including subtasks.
+ * Get a single todo by ID.
  */
 export const getById = query({
   args: {
@@ -313,20 +230,7 @@ export const getById = query({
     const currentUserId = await getCurrentUserId(ctx, authResult, args.userEmail);
     const nameMap = await buildNameMap(ctx, [todo.createdByEmail]);
 
-    const subtasks = await ctx.db
-      .query("todos")
-      .withIndex("by_isActive_parentId", (q) =>
-        q.eq("isActive", true).eq("parentId", todo._id)
-      )
-      .order("desc")
-      .collect();
-
-    return {
-      ...enrichTodo(todo, currentUserId, nameMap),
-      subtasks: subtasks.map((sub) =>
-        enrichTodo(sub, currentUserId, nameMap)
-      ),
-    };
+    return enrichTodo(todo, currentUserId, nameMap);
   },
 });
 
@@ -351,7 +255,6 @@ export const create = mutation({
     remarks: v.optional(v.string()),
     reminderDate: v.optional(v.union(v.number(), v.null())),
     assigneeId: v.optional(v.string()),
-    parentId: v.optional(v.string()),
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -376,16 +279,6 @@ export const create = mutation({
       }
     }
 
-    // Validate parent task if provided
-    let parentId: Id<"todos"> | undefined = undefined;
-    if (args.parentId) {
-      const parent = await ctx.db.get(args.parentId as Id<"todos">);
-      if (!parent || !parent.isActive) {
-        throw new Error("Parent task not found");
-      }
-      parentId = parent._id;
-    }
-
     const now = Date.now();
 
     const todoId = await ctx.db.insert("todos", {
@@ -396,7 +289,6 @@ export const create = mutation({
       assigneeId,
       assigneeName,
       assigneeImageUrl,
-      parentId,
       isActive: true,
       createdAt: now,
       updatedAt: now,
@@ -477,7 +369,7 @@ export const update = mutation({
 });
 
 /**
- * Soft delete a todo and its subtasks.
+ * Soft delete a todo.
  * Only the creator can delete.
  */
 export const remove = mutation({
@@ -499,23 +391,37 @@ export const remove = mutation({
 
     if (!todo.isActive) return;
 
+    await ctx.db.patch(args.id, { isActive: false, updatedAt: Date.now() });
+  },
+});
+
+/**
+ * One-off migration: soft-delete all active subtasks (todos with a parentId)
+ * so they disappear from the list view after the parent/child feature is
+ * removed. Idempotent — safe to run multiple times.
+ *
+ * Run once in production after deploying this change:
+ *   npx convex run todos:softDeleteSubtasks {} --prod
+ */
+export const softDeleteSubtasks = mutation({
+  args: {},
+  handler: async (ctx) => {
     const now = Date.now();
 
-    // Soft delete subtasks
+    // Query active todos that have a parentId (i.e. subtasks).
     const subtasks = await ctx.db
       .query("todos")
-      .withIndex("by_isActive_parentId", (q) =>
-        q.eq("isActive", true).eq("parentId", todo._id)
-      )
+      .withIndex("by_isActive_createdAt", (q) => q.eq("isActive", true))
       .collect();
+    const activeSubtasks = subtasks.filter((t) => t.parentId !== undefined);
 
     await Promise.all(
-      subtasks.map((sub) =>
+      activeSubtasks.map((sub) =>
         ctx.db.patch(sub._id, { isActive: false, updatedAt: now })
       )
     );
 
-    await ctx.db.patch(args.id, { isActive: false, updatedAt: now });
+    return { softDeleted: activeSubtasks.length };
   },
 });
 

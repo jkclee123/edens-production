@@ -26,9 +26,6 @@ const defaultPreferences = {
 
 export function TodoBoard() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(
-    undefined
-  );
   const [preferences, setPreferences] = useState(defaultPreferences);
   const [isHydrated, setIsHydrated] = useState(false);
   const userEmail = useUserEmail();
@@ -77,21 +74,14 @@ export function TodoBoard() {
     setPreferences((prev) => ({ ...prev, filters: {} }));
   }, []);
 
-  const handleCreateSubtask = useCallback((parentId: string) => {
-    setSubtaskParentId(parentId);
-    setIsCreateModalOpen(true);
-  }, []);
-
   const handleCloseModal = useCallback(() => {
     setIsCreateModalOpen(false);
-    setSubtaskParentId(undefined);
   }, []);
 
   const isLoading = todosResult === undefined;
   const hasError = todosResult === null;
   const total = todosResult?.total ?? 0;
   const groupedTasks = todosResult?.groups ?? {};
-  const flatTasks = Object.values(groupedTasks).flat();
 
   return (
     <div className="space-y-4">
@@ -153,10 +143,7 @@ export function TodoBoard() {
                 status={status}
                 count={groupTasks.length}
               >
-                <TodoTable
-                  todos={groupTasks}
-                  onCreateSubtask={handleCreateSubtask}
-                />
+                <TodoTable todos={groupTasks} />
               </TodoGroupSection>
             );
           })}
@@ -173,10 +160,7 @@ export function TodoBoard() {
                   status={key as TodoStatus}
                   count={groupTasks.length}
                 >
-                  <TodoTable
-                    todos={groupTasks}
-                    onCreateSubtask={handleCreateSubtask}
-                  />
+                  <TodoTable todos={groupTasks} />
                 </TodoGroupSection>
               );
             })}
@@ -187,8 +171,6 @@ export function TodoBoard() {
       <TodoCreateModal
         isOpen={isCreateModalOpen}
         onClose={handleCloseModal}
-        parentId={subtaskParentId}
-        todos={flatTasks}
       />
     </div>
   );

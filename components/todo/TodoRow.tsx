@@ -10,12 +10,10 @@ import type { Doc } from "@/convex/_generated/dataModel";
 
 interface TodoRowProps {
   todo: TodoWithMeta;
-  onCreateSubtask?: (parentId: string) => void;
-  level: number;
   users: Doc<"users">[];
 }
 
-export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
+export function TodoRow({ todo, users }: TodoRowProps) {
   const [isDeleted, setIsDeleted] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,38 +67,11 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
             : ""
           }`}
       >
-        {/* Spacer / Add subtask */}
-        <td className="px-0 py-1.5">
-          {level === 0 && onCreateSubtask ? (
-            <button
-              type="button"
-              onClick={() => onCreateSubtask(todo._id)}
-              disabled={isUpdating}
-              className="rounded p-0.5 text-text-muted transition-colors hover:text-warning disabled:opacity-40"
-              title="新增子任務"
-            >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </button>
-          ) : null}
-        </td>
+        {/* Spacer */}
+        <td className="px-0 py-1.5"></td>
 
         {/* Task name */}
-        <td
-          className="px-1 py-1.5"
-          style={{ paddingLeft: `${level * 8}px` }}
-        >
+        <td className="px-1 py-1.5">
           <InlineTextInput
             value={todo.name}
             onChange={(value) => {
@@ -108,7 +79,7 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
               handleUpdate({ id: todo._id, name: value });
             }}
             placeholder="任務名稱"
-            className={`font-semibold ${level > 0 ? "text-foreground/80" : ""}`}
+            className="font-semibold"
             disabled={isUpdating}
           />
         </td>
@@ -211,17 +182,6 @@ export function TodoRow({ todo, onCreateSubtask, level, users }: TodoRowProps) {
           </td>
         </tr>
       )}
-
-      {/* Subtasks are always expanded */}
-      {todo.subtasks?.map((subtask) => (
-        <TodoRow
-          key={subtask._id}
-          todo={subtask}
-          onCreateSubtask={onCreateSubtask}
-          level={level + 1}
-          users={users}
-        />
-      ))}
     </>
   );
 }
