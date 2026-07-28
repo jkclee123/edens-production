@@ -73,21 +73,19 @@ async function buildNameMap(
 /**
  * Enrich a todo with permission flags and current creator name.
  * - canEdit: any active todo is editable by an allowlisted user.
- * - canDelete: only the creator can delete.
+ * - canDelete: any active todo can be deleted by an allowlisted user.
  */
 function enrichTodo(
   todo: Doc<"todos">,
-  currentUserId: Id<"users"> | null,
+  _currentUserId: Id<"users"> | null,
   nameMap: Map<string, string>
 ): TodoWithMeta {
-  const isCreator =
-    currentUserId !== null && todo.createdByUserId === currentUserId;
   return {
     ...todo,
     createdByCurrentName:
       nameMap.get(normalizeEmail(todo.createdByEmail)) ?? "",
     canEdit: todo.isActive,
-    canDelete: isCreator,
+    canDelete: todo.isActive,
   };
 }
 
@@ -335,7 +333,7 @@ export const create = mutation({
 
 /**
  * Update a todo.
- * Any allowlisted user can edit any field. Delete is restricted to the creator.
+ * Any allowlisted user can edit any field.
  */
 export const update = mutation({
   args: {
@@ -419,7 +417,7 @@ export const update = mutation({
 
 /**
  * Soft delete a todo.
- * Only the creator can delete.
+ * Any allowlisted user can delete any task.
  */
 export const remove = mutation({
   args: {
@@ -427,15 +425,11 @@ export const remove = mutation({
     userEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await requireUserForMutation(ctx, args.userEmail);
+    await requireUserForMutation(ctx, args.userEmail);
 
     const todo = await ctx.db.get(args.id);
     if (!todo) {
       throw new Error("Task not found");
-    }
-
-    if (todo.createdByUserId !== user._id) {
-      throw new Error("You can only delete your own tasks");
     }
 
     if (!todo.isActive) return;
