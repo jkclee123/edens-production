@@ -15,6 +15,7 @@ export enum TodoStatus {
 export enum TodoPriority {
   CRITICAL = "CRITICAL",
   URGENT = "URGENT",
+  MEDIUM_URGENT = "MEDIUM_URGENT",
   LOW = "LOW",
 }
 
@@ -52,6 +53,7 @@ export const TodoStatusLabels: Record<TodoStatus, string> = {
 export const TodoPriorityLabels: Record<TodoPriority, string> = {
   [TodoPriority.CRITICAL]: "危殆",
   [TodoPriority.URGENT]: "緊急",
+  [TodoPriority.MEDIUM_URGENT]: "次緊急",
   [TodoPriority.LOW]: "唔急",
 };
 
@@ -69,6 +71,7 @@ export const TodoStatusBadgeClasses: Record<TodoStatus, string> = {
 export const TodoPriorityClasses: Record<TodoPriority, string> = {
   [TodoPriority.CRITICAL]: "text-[#9B30FF] font-bold",
   [TodoPriority.URGENT]: "text-error font-bold",
+  [TodoPriority.MEDIUM_URGENT]: "text-warning font-bold",
   [TodoPriority.LOW]: "text-success font-bold",
 };
 
@@ -76,14 +79,15 @@ export const TodoPriorityClasses: Record<TodoPriority, string> = {
 export const TodoPriorityOrder: Record<TodoPriority, number> = {
   [TodoPriority.CRITICAL]: 0,
   [TodoPriority.URGENT]: 1,
-  [TodoPriority.LOW]: 2,
+  [TodoPriority.MEDIUM_URGENT]: 2,
+  [TodoPriority.LOW]: 3,
 };
 
 export function getTodoPriorityRank(priority: string | undefined): number {
   if (priority && priority in TodoPriorityOrder) {
     return TodoPriorityOrder[priority as TodoPriority];
   }
-  return 3;
+  return 4;
 }
 
 // ============================================================

@@ -93,6 +93,7 @@ export default defineSchema({
       v.union(
         v.literal("CRITICAL"),
         v.literal("URGENT"),
+        v.literal("MEDIUM_URGENT"),
         v.literal("LOW")
       )
     ),

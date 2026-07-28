@@ -169,7 +169,15 @@ export const list = query({
     //   3. tasks with reminderDate, sorted ascending
     //   4. then createdAt descending
     const priorityRank = (p?: string) =>
-      p === "CRITICAL" ? 0 : p === "URGENT" ? 1 : p === "LOW" ? 2 : 3;
+      p === "CRITICAL"
+        ? 0
+        : p === "URGENT"
+        ? 1
+        : p === "MEDIUM_URGENT"
+        ? 2
+        : p === "LOW"
+        ? 3
+        : 4;
 
     const compareTodos = (
       a: {
@@ -274,6 +282,7 @@ export const create = mutation({
       v.union(
         v.literal("CRITICAL"),
         v.literal("URGENT"),
+        v.literal("MEDIUM_URGENT"),
         v.literal("LOW"),
         v.literal("")
       )
@@ -305,6 +314,7 @@ export const create = mutation({
     const priority =
       args.priority === "CRITICAL" ||
       args.priority === "URGENT" ||
+      args.priority === "MEDIUM_URGENT" ||
       args.priority === "LOW"
         ? args.priority
         : undefined;
@@ -354,6 +364,7 @@ export const update = mutation({
       v.union(
         v.literal("CRITICAL"),
         v.literal("URGENT"),
+        v.literal("MEDIUM_URGENT"),
         v.literal("LOW"),
         v.literal("")
       )
@@ -389,6 +400,7 @@ export const update = mutation({
       patch.priority =
         args.priority === "CRITICAL" ||
         args.priority === "URGENT" ||
+        args.priority === "MEDIUM_URGENT" ||
         args.priority === "LOW"
           ? args.priority
           : undefined;
