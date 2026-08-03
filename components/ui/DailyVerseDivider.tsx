@@ -33,7 +33,7 @@ export function DailyVerseDivider() {
       {!isLoading && verse && verse.text && (
         <div className="animate-fade-in">
           <blockquote className="text-sm text-text-muted italic leading-relaxed">
-            「{verse.text}」 
+            {verse.text}
             <span className="inline-block text-xs text-text-secondary ml-2 mt-1 font-medium">
               - {verse.reference}
             </span>

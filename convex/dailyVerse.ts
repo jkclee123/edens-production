@@ -141,10 +141,7 @@ export const saveVerse = internalMutation({
 
 
 function stripOuterQuotes(text: string): string {
-  let result = text.trim();
-  // Replace inner dialogue quotes with secondary quotes to avoid conflict with UI wrapper
-  result = result.replaceAll("「", "『").replaceAll("」", "』");
-  return result.trim();
+  return text.trim();
 }
 
 /**
