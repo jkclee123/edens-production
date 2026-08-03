@@ -183,29 +183,6 @@ export function AppShell({ children }: AppShellProps) {
                   帳戶
                 </Link>
 
-                <Link
-                  href="/settings/location-order"
-                  role="menuitem"
-                  onClick={() => setIsUserMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-surface transition-colors focus:outline-none focus-visible:bg-surface focus-visible:ring-1 focus-visible:ring-accent"
-                >
-                  <svg
-                    className="h-4 w-4 text-text-muted"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                    />
-                  </svg>
-                  位置排序
-                </Link>
-
                 <button
                   role="menuitem"
                   onClick={() => {
