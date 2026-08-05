@@ -243,7 +243,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="hidden lg:block shrink-0 w-16 transition-all duration-300" aria-hidden="true" />
 
         {/* Main content */}
-        <main role="main" className="flex-1 overflow-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">{children}</main>
+        <main role="main" className="flex-1 overflow-auto px-3 py-6 lg:px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">{children}</main>
       </div>
     </div>
   );
