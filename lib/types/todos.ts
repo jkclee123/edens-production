@@ -27,6 +27,8 @@ export interface TodoWithMeta extends Doc<"todos"> {
   createdByCurrentName: string;
   canEdit: boolean;
   canDelete: boolean;
+  /** Signed serving URL for the attached photo, or null when there is none. */
+  photoUrl: string | null;
 }
 
 export interface TodoFilters {

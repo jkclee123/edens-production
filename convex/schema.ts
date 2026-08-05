@@ -88,6 +88,7 @@ export default defineSchema({
       v.literal("DONE")
     ),
     remarks: v.optional(v.string()),
+    photoId: v.optional(v.id("_storage")), // single attached photo
     reminderDate: v.optional(v.number()), // end-of-day timestamp
     priority: v.optional(
       v.union(

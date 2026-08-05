@@ -12,7 +12,7 @@ import {
   isReminderToday,
 } from "@/lib/types/todos";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
-import { InlineTextInput, StatusCheckbox, DatePicker } from "./fields";
+import { InlineTextInput, StatusCheckbox, DatePicker, PhotoCell } from "./fields";
 import type { Doc } from "@/convex/_generated/dataModel";
 
 interface TodoRowProps {
@@ -101,6 +101,18 @@ export function TodoRow({ todo, users }: TodoRowProps) {
             placeholder="—"
             className="w-full wrap-break-word text-foreground/80"
             disabled={isUpdating}
+          />
+        </td>
+
+        {/* Photo */}
+        <td className="px-1 py-1.5">
+          <PhotoCell
+            todoId={todo._id}
+            todoName={todo.name}
+            photoUrl={todo.photoUrl}
+            userEmail={userEmail}
+            disabled={isUpdating}
+            onError={setError}
           />
         </td>
 
@@ -210,7 +222,7 @@ export function TodoRow({ todo, users }: TodoRowProps) {
 
       {error && (
         <tr>
-          <td colSpan={8} className="px-3 py-2">
+          <td colSpan={9} className="px-3 py-2">
             <p className="text-xs text-error animate-fade-in">{error}</p>
           </td>
         </tr>

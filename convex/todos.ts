@@ -78,7 +78,8 @@ async function buildNameMap(
 function enrichTodo(
   todo: Doc<"todos">,
   _currentUserId: Id<"users"> | null,
-  nameMap: Map<string, string>
+  nameMap: Map<string, string>,
+  photoUrl: string | null
 ): TodoWithMeta {
   return {
     ...todo,
@@ -86,7 +87,29 @@ function enrichTodo(
       nameMap.get(normalizeEmail(todo.createdByEmail)) ?? "",
     canEdit: todo.isActive,
     canDelete: todo.isActive,
+    photoUrl,
   };
+}
+
+/**
+ * Resolve serving URLs for the photos attached to a list of todos.
+ * Returns a map keyed by todo id; todos without a photo are omitted.
+ */
+async function buildPhotoUrlMap(
+  ctx: { storage: QueryCtx["storage"] },
+  todos: Doc<"todos">[]
+): Promise<Map<Id<"todos">, string>> {
+  const withPhoto = todos.filter((t) => t.photoId);
+  const urls = await Promise.all(
+    withPhoto.map((t) => ctx.storage.getUrl(t.photoId!))
+  );
+
+  const map = new Map<Id<"todos">, string>();
+  withPhoto.forEach((todo, i) => {
+    const url = urls[i];
+    if (url) map.set(todo._id, url);
+  });
+  return map;
 }
 
 // ============================================================
@@ -97,6 +120,8 @@ export interface TodoWithMeta extends Doc<"todos"> {
   createdByCurrentName: string;
   canEdit: boolean;
   canDelete: boolean;
+  /** Signed serving URL for the attached photo, or null when there is none. */
+  photoUrl: string | null;
 }
 
 // ============================================================
@@ -213,8 +238,9 @@ export const list = query({
     filtered.sort(compareTodos);
 
     // Enrich todos
+    const photoUrls = await buildPhotoUrlMap(ctx, filtered);
     const enriched: TodoWithMeta[] = filtered.map((todo) =>
-      enrichTodo(todo, currentUserId, nameMap)
+      enrichTodo(todo, currentUserId, nameMap, photoUrls.get(todo._id) ?? null)
     );
 
     // Always group by status (primary UI statuses first; legacy statuses follow)
@@ -252,8 +278,11 @@ export const getById = query({
 
     const currentUserId = await getCurrentUserId(ctx, authResult, args.userEmail);
     const nameMap = await buildNameMap(ctx, [todo.createdByEmail]);
+    const photoUrl = todo.photoId
+      ? await ctx.storage.getUrl(todo.photoId)
+      : null;
 
-    return enrichTodo(todo, currentUserId, nameMap);
+    return enrichTodo(todo, currentUserId, nameMap, photoUrl);
   },
 });
 
@@ -446,7 +475,93 @@ export const remove = mutation({
 
     if (!todo.isActive) return;
 
-    await ctx.db.patch(args.id, { isActive: false, updatedAt: Date.now() });
+    // The task row is soft-deleted, but the attached photo is hard-deleted so
+    // storage does not accumulate orphaned files.
+    if (todo.photoId) {
+      await ctx.storage.delete(todo.photoId);
+    }
+
+    await ctx.db.patch(args.id, {
+      isActive: false,
+      photoId: undefined,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+// ============================================================
+// Photo attachment
+// ============================================================
+
+/**
+ * Issue a short-lived URL the browser POSTs the (already compressed) image to.
+ * Uploads go straight to Convex storage and never pass through Next.js.
+ */
+export const generateUploadUrl = mutation({
+  args: {
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireUserForMutation(ctx, args.userEmail);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+/**
+ * Attach an uploaded photo to a task, replacing (and hard-deleting) any
+ * previous one.
+ */
+export const setPhoto = mutation({
+  args: {
+    id: v.id("todos"),
+    storageId: v.id("_storage"),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireUserForMutation(ctx, args.userEmail);
+
+    const todo = await ctx.db.get(args.id);
+    if (!todo || !todo.isActive) {
+      // Nothing to attach to — drop the orphaned upload.
+      await ctx.storage.delete(args.storageId);
+      throw new Error("Task not found");
+    }
+
+    if (todo.photoId && todo.photoId !== args.storageId) {
+      await ctx.storage.delete(todo.photoId);
+    }
+
+    await ctx.db.patch(args.id, {
+      photoId: args.storageId,
+      updatedAt: Date.now(),
+    });
+    return args.id;
+  },
+});
+
+/**
+ * Hard-delete the photo attached to a task.
+ */
+export const removePhoto = mutation({
+  args: {
+    id: v.id("todos"),
+    userEmail: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireUserForMutation(ctx, args.userEmail);
+
+    const todo = await ctx.db.get(args.id);
+    if (!todo) {
+      throw new Error("Task not found");
+    }
+    if (!todo.photoId) return args.id;
+
+    await ctx.storage.delete(todo.photoId);
+    await ctx.db.patch(args.id, {
+      photoId: undefined,
+      updatedAt: Date.now(),
+    });
+    return args.id;
   },
 });
 
