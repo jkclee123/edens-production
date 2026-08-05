@@ -21,10 +21,10 @@ export function TodoTable({ todos }: TodoTableProps) {
           <col className="w-[12%] lg:w-[21%]" />
           <col className="w-[7%] lg:w-[6%]" />
           <col className="w-[6%] lg:w-[10%]" />
-          <col className="w-[7%] lg:w-[10%]" />
-          <col className="w-[8%] lg:w-[12%]" />
-          <col className="w-[12%] lg:w-[12%]" />
-          <col className="w-[3%]" />
+          <col className="w-[8%] lg:w-[10%]" />
+          <col className="w-[10%] lg:w-[12%]" />
+          <col className="w-[13%] lg:w-[12%]" />
+          <col className="w-[2%]" />
         </colgroup>
         <thead className="border-b border-border bg-surface">
           <tr className="text-left text-sm lg:text-base font-bold tracking-wider text-text-muted">
