@@ -32,17 +32,14 @@ function LoginContent() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pt-safe pb-safe">
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="mb-8 text-center">
+        <div className="mb-2 text-center">
           <Image
             src={logo}
             alt="Eden's Production"
             width={128}
             height={128}
-            className="mx-auto mb-4 rounded-2xl"
+            className="mx-auto rounded-2xl"
           />
-          <h1 className="text-2xl font-bold text-foreground font-display">
-            Eden&apos;s Production
-          </h1>
         </div>
 
         {/* Error message */}
