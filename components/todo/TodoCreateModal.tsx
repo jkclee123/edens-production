@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Dialog, Button, Input, Select } from "@/components/ui";
@@ -22,15 +22,22 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
   const userEmail = useUserEmail();
   const users = useQuery(api.users.list, {});
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    remarks: string;
+    reminderDate: string;
+    assigneeId: string;
+    priority: TodoPriority | "";
+  }>({
     name: "",
     remarks: "",
     reminderDate: "",
     assigneeId: "",
-    priority: "",
+    priority: TodoPriority.URGENT,
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userTouchedAssigneeRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -39,11 +46,25 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
         remarks: "",
         reminderDate: "",
         assigneeId: "",
-        priority: "",
+        priority: TodoPriority.URGENT,
       });
+      userTouchedAssigneeRef.current = false;
       setError(null);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !users || !userEmail) return;
+    if (userTouchedAssigneeRef.current) return;
+    const selfUser = users.find((u) => u.email === userEmail);
+    if (selfUser) {
+      setFormData((prev) =>
+        prev.assigneeId === selfUser._id
+          ? prev
+          : { ...prev, assigneeId: selfUser._id }
+      );
+    }
+  }, [isOpen, users, userEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +99,7 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="新增任務">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 min-w-0">
         <Input
           label="任務名稱 *"
           value={formData.name}
@@ -112,7 +133,10 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
           label="優先（選填）"
           value={formData.priority}
           onChange={(e) =>
-            setFormData({ ...formData, priority: e.target.value })
+            setFormData({
+              ...formData,
+              priority: e.target.value as TodoPriority | "",
+            })
           }
           options={[
             { value: "", label: "無" },
@@ -127,9 +151,10 @@ export function TodoCreateModal({ isOpen, onClose }: TodoCreateModalProps) {
         <Select
           label="負責人（選填）"
           value={formData.assigneeId}
-          onChange={(e) =>
-            setFormData({ ...formData, assigneeId: e.target.value })
-          }
+          onChange={(e) => {
+            userTouchedAssigneeRef.current = true;
+            setFormData({ ...formData, assigneeId: e.target.value });
+          }}
           options={[
             { value: "", label: "無" },
             ...(users ?? []).map((user) => ({

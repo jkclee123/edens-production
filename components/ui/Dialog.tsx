@@ -38,7 +38,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="w-full max-w-md p-6 bg-surface border border-border rounded-xl shadow-xl animate-scale-in"
+        className="w-full max-w-md max-h-[calc(100vh-2rem)] overflow-x-hidden overflow-y-auto p-6 bg-surface border border-border rounded-xl shadow-xl animate-scale-in"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 id="dialog-title" className="text-xl font-semibold text-foreground">

@@ -116,6 +116,10 @@
 }
 
 @layer utilities {
+  .scheme-dark {
+    color-scheme: dark;
+  }
+
   .pt-safe {
     padding-top: env(safe-area-inset-top);
   }
