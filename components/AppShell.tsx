@@ -3,11 +3,13 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Nav } from "./Nav";
 import { useUserEmail } from "@/lib/hooks/useUserEmail";
+import { LoadingPage } from "./Loading";
 import logo from "@/app/crew.png";
 
 interface AppShellProps {
@@ -17,13 +19,20 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated: () => router.replace("/login"),
+  });
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   
   // Fetch current user from Convex to get the updated display name
   const userEmail = useUserEmail();
-  const currentUser = useQuery(api.users.getCurrent, { userEmail });
+  const currentUser = useQuery(
+    api.users.getCurrent,
+    userEmail ? { userEmail } : "skip"
+  );
 
   // Close menu on Escape key
   useEffect(() => {
@@ -58,6 +67,10 @@ export function AppShell({ children }: AppShellProps) {
       }
     }
   }, []);
+
+  if (status === "loading" || !session) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="flex h-screen flex-col bg-background pt-safe">
@@ -248,4 +261,3 @@ export function AppShell({ children }: AppShellProps) {
     </div>
   );
 }
-

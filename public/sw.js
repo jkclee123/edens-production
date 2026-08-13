@@ -1,16 +1,12 @@
-const CACHE_NAME = 'edens-production-v1';
+const CACHE_NAME = 'edens-production-v2';
+const OFFLINE_URL = '/offline';
 
-// Assets to cache on install
-const STATIC_ASSETS = [
-  '/',
-  '/offline',
-];
-
-// Install event - cache static assets
+// Cache only the public offline page. Authenticated pages must always be
+// resolved by the server so a logged-out session cannot receive stale HTML.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return cache.add(OFFLINE_URL);
     })
   );
   self.skipWaiting();
@@ -30,44 +26,23 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Use the network for every navigation. If it is unavailable, show the
+// public offline page instead of replaying a cached authenticated route.
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip API requests and auth endpoints
-  const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/')) {
-    return;
-  }
+  if (event.request.mode !== 'navigate') return;
 
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        // Clone the response before caching
-        const responseToCache = response.clone();
-        
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return response;
-      })
       .catch(() => {
-        // Fallback to cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          // If no cache and it's a navigation request, show offline page
-          if (event.request.mode === 'navigate') {
-            return caches.match('/offline');
-          }
-          
-          return new Response('Offline', { status: 503 });
+        return caches.match(OFFLINE_URL).then((cachedResponse) => {
+          return cachedResponse || new Response('Offline', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain' },
+          });
         });
       })
   );
 });
-
