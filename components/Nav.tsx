@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
 interface NavItem {
@@ -87,6 +87,28 @@ const navItems: NavItem[] = [
   },
 ];
 
+/**
+ * Swaps the nav item icon for a spinner while its navigation is pending.
+ * Must be rendered inside <Link> for useLinkStatus to track it.
+ */
+function NavItemContent({ item, isCollapsed }: { item: NavItem; isCollapsed: boolean }) {
+  const { pending } = useLinkStatus();
+
+  return (
+    <>
+      {pending ? (
+        <span
+          className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent"
+          aria-hidden="true"
+        />
+      ) : (
+        item.icon
+      )}
+      {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+    </>
+  );
+}
+
 interface NavProps {
   isCollapsed: boolean;
   onNavSelect?: () => void;
@@ -120,10 +142,7 @@ export function Nav({ isCollapsed, onNavSelect }: NavProps) {
                 title={isCollapsed ? item.label : undefined}
                 aria-label={isCollapsed ? item.label : undefined}
               >
-                {item.icon}
-                {!isCollapsed && (
-                  <span className="text-sm font-medium">{item.label}</span>
-                )}
+                <NavItemContent item={item} isCollapsed={isCollapsed} />
               </Link>
             </li>
           );
