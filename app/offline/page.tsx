@@ -31,7 +31,24 @@ export default function OfflinePage() {
         </div>
         
         <button
-          onClick={() => window.location.reload()}
+          onClick={async () => {
+            // A wedged service worker can keep serving this page even when the
+            // network is fine, so tear it down before reloading.
+            try {
+              const registrations =
+                await navigator.serviceWorker?.getRegistrations();
+              await Promise.all(
+                (registrations ?? []).map((registration) =>
+                  registration.unregister()
+                )
+              );
+              const keys = await caches?.keys();
+              await Promise.all((keys ?? []).map((key) => caches.delete(key)));
+            } catch {
+              // Ignore - reload regardless.
+            }
+            window.location.reload();
+          }}
           className="btn-primary"
         >
           Try Again

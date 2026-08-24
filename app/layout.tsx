@@ -71,6 +71,11 @@ export default function RootLayout({
                   })
                     .then((registration) => {
                       console.log('SW registered:', registration.scope);
+                      // Check for a new worker on focus so a bad one is never
+                      // stuck in control for long.
+                      var update = function () { registration.update().catch(function () {}); };
+                      window.addEventListener('focus', update);
+                      setInterval(update, 60 * 60 * 1000);
                     })
                     .catch((error) => {
                       console.log('SW registration failed:', error);
