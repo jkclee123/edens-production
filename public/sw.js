@@ -33,6 +33,12 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Brief pause before retrying a failed navigation. Route blips between the
+// device and the edge often clear in well under a second, and retrying
+// instantly just burns the one retry on the same dead socket.
+const RETRY_DELAY_MS = 500;
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Escape hatch: a page can tell a wedged worker to remove itself.
 self.addEventListener('message', (event) => {
   if (event.data === 'unregister') {
@@ -59,9 +65,10 @@ self.addEventListener('fetch', (event) => {
         if (preloaded) return preloaded;
         return await fetch(event.request);
       } catch {
-        // One retry: a single transient failure should not strand the user on
-        // the offline page.
+        // One retry, after a short backoff: a single transient failure should
+        // not strand the user on the offline page.
         try {
+          await delay(RETRY_DELAY_MS);
           return await fetch(event.request);
         } catch {
           const cachedResponse = await caches.match(OFFLINE_URL);
