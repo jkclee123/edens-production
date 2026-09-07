@@ -1,4 +1,46 @@
-"use client";
+// Rendered as the service worker's offline fallback, where the Next.js
+// chunks cannot be fetched and React never hydrates. Everything interactive
+// here must therefore work from the server-rendered HTML alone.
+const RETRY_SCRIPT = `(function () {
+  var button = document.getElementById('offline-retry');
+  if (!button) return;
+
+  var retry = function () {
+    button.disabled = true;
+    // A wedged service worker can keep serving this page even when the
+    // network is fine, so tear it down before reloading.
+    var teardown = Promise.resolve();
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+      teardown = navigator.serviceWorker
+        .getRegistrations()
+        .then(function (registrations) {
+          return Promise.all(
+            registrations.map(function (registration) {
+              return registration.unregister();
+            })
+          );
+        })
+        .then(function () {
+          return window.caches ? caches.keys() : [];
+        })
+        .then(function (keys) {
+          return Promise.all(
+            keys.map(function (key) {
+              return caches.delete(key);
+            })
+          );
+        })
+        .catch(function () {});
+    }
+    teardown.then(function () {
+      window.location.reload();
+    });
+  };
+
+  button.addEventListener('click', retry);
+  // The connection can come back while this page sits open.
+  window.addEventListener('online', retry);
+})();`;
 
 export default function OfflinePage() {
   return (
@@ -20,7 +62,7 @@ export default function OfflinePage() {
             />
           </svg>
         </div>
-        
+
         <div className="space-y-2">
           <h1 className="text-2xl font-display font-bold text-foreground">
             You&apos;re Offline
@@ -29,32 +71,13 @@ export default function OfflinePage() {
             Check your internet connection and try again.
           </p>
         </div>
-        
-        <button
-          onClick={async () => {
-            // A wedged service worker can keep serving this page even when the
-            // network is fine, so tear it down before reloading.
-            try {
-              const registrations =
-                await navigator.serviceWorker?.getRegistrations();
-              await Promise.all(
-                (registrations ?? []).map((registration) =>
-                  registration.unregister()
-                )
-              );
-              const keys = await caches?.keys();
-              await Promise.all((keys ?? []).map((key) => caches.delete(key)));
-            } catch {
-              // Ignore - reload regardless.
-            }
-            window.location.reload();
-          }}
-          className="btn-primary"
-        >
+
+        <button id="offline-retry" type="button" className="btn-primary">
           Try Again
         </button>
       </div>
+
+      <script dangerouslySetInnerHTML={{ __html: RETRY_SCRIPT }} />
     </div>
   );
 }
-

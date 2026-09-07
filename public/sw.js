@@ -1,4 +1,4 @@
-const CACHE_NAME = 'edens-production-v3';
+const CACHE_NAME = 'edens-production-v4';
 const OFFLINE_URL = '/offline';
 
 // Cache only the public offline page. Authenticated pages must always be
